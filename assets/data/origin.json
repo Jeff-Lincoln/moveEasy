@@ -1,0 +1,55 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "coordinates": [
+                    36.78613,
+                    -1.843908
+                ],
+                "type": "Point"
+            },
+            "properties": {
+                "name": "Kajiado",
+                "name_preferred": "Kajiado",
+                "mapbox_id": "dXJuOm1ieHBsYzpMb2gx",
+                "feature_type": "place",
+                "full_address": "Kajiado, Kajiado, Kenya",
+                "place_formatted": "Kajiado, Kenya",
+                "context": {
+                    "country": {
+                        "id": "dXJuOm1ieHBsYzpJblU",
+                        "name": "Kenya",
+                        "country_code": "KE",
+                        "country_code_alpha_3": "KEN"
+                    },
+                    "region": {
+                        "id": "dXJuOm1ieHBsYzpCRVIx",
+                        "name": "Kajiado",
+                        "region_code": "10",
+                        "region_code_full": "KE-10"
+                    },
+                    "place": {
+                        "id": "dXJuOm1ieHBsYzpMb2gx",
+                        "name": "Kajiado"
+                    }
+                },
+                "coordinates": {
+                    "latitude": -1.843908,
+                    "longitude": 36.78613
+                },
+                "bbox": [
+                    36.7684157,
+                    -1.8616352,
+                    36.8062384,
+                    -1.8280697
+                ],
+                "language": "en",
+                "maki": "marker",
+                "metadata": {}
+            }
+        }
+    ],
+    "attribution": "© 2024 Mapbox and its suppliers. All rights reserved. Use of this data is subject to the Mapbox Terms of Service. (https://www.mapbox.com/about/maps/)"
+}
