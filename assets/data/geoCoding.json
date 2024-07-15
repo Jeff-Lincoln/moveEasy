@@ -1,0 +1,76 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "id": "dXJuOm1ieHBsYzpCT1Ix",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    36.8172449,
+                    -1.2832533
+                ]
+            },
+            "properties": {
+                "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                "feature_type": "place",
+                "full_address": "Nairobi, Kenya",
+                "name": "Nairobi",
+                "name_preferred": "Nairobi",
+                "coordinates": {
+                    "longitude": 36.8172449,
+                    "latitude": -1.2832533
+                },
+                "additional_feature_types": [
+                    "region",
+                    "place"
+                ],
+                "place_formatted": "Kenya",
+                "bbox": [
+                    36.664464,
+                    -1.445609,
+                    37.104955,
+                    -1.160583
+                ],
+                "context": {
+                    "region": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                        "name": "Nairobi",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi"
+                            }
+                        },
+                        "wikidata_id": "Q3870"
+                    },
+                    "country": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpJblU",
+                        "name": "Kenya",
+                        "wikidata_id": "Q114",
+                        "country_code": "KE",
+                        "country_code_alpha_3": "KEN",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Kenya"
+                            }
+                        }
+                    },
+                    "place": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                        "name": "Nairobi",
+                        "wikidata_id": "Q3870",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "attribution": "NOTICE: © 2024 Mapbox and its suppliers. All rights reserved. Use of this data is subject to the Mapbox Terms of Service (https://www.mapbox.com/about/maps/). This response and the information it contains may not be retained."
+}

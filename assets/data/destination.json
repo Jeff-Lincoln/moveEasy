@@ -1,0 +1,369 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "id": "dXJuOm1ieHBsYzpCT1Ix",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    36.8172449,
+                    -1.2832533
+                ]
+            },
+            "properties": {
+                "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                "feature_type": "place",
+                "full_address": "Nairobi, Kenya",
+                "name": "Nairobi",
+                "name_preferred": "Nairobi",
+                "coordinates": {
+                    "longitude": 36.8172449,
+                    "latitude": -1.2832533
+                },
+                "additional_feature_types": [
+                    "region",
+                    "place"
+                ],
+                "place_formatted": "Kenya",
+                "bbox": [
+                    36.664464,
+                    -1.445609,
+                    37.104955,
+                    -1.160583
+                ],
+                "context": {
+                    "region": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                        "name": "Nairobi",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi"
+                            }
+                        },
+                        "wikidata_id": "Q3870"
+                    },
+                    "country": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpJblU",
+                        "name": "Kenya",
+                        "wikidata_id": "Q114",
+                        "country_code": "KE",
+                        "country_code_alpha_3": "KEN",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Kenya"
+                            }
+                        }
+                    },
+                    "place": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                        "name": "Nairobi",
+                        "wikidata_id": "Q3870",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Feature",
+            "id": "dXJuOm1ieHBsYzpEU3Ax",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    36.817474,
+                    -1.316816
+                ]
+            },
+            "properties": {
+                "mapbox_id": "dXJuOm1ieHBsYzpEU3Ax",
+                "feature_type": "locality",
+                "full_address": "Nairobi West, Nairobi, Kenya",
+                "name": "Nairobi West",
+                "name_preferred": "Nairobi West",
+                "coordinates": {
+                    "longitude": 36.817474,
+                    "latitude": -1.316816
+                },
+                "place_formatted": "Nairobi, Kenya",
+                "bbox": [
+                    36.7960854,
+                    -1.3318406,
+                    36.8288422,
+                    -1.2975111
+                ],
+                "context": {
+                    "place": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                        "name": "Nairobi",
+                        "wikidata_id": "Q3870",
+                        "short_code": "KE-30",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi"
+                            }
+                        }
+                    },
+                    "region": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                        "name": "Nairobi",
+                        "wikidata_id": "Q3870",
+                        "region_code": "30",
+                        "region_code_full": "KE-30",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi"
+                            }
+                        }
+                    },
+                    "country": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpJblU",
+                        "name": "Kenya",
+                        "wikidata_id": "Q114",
+                        "country_code": "KE",
+                        "country_code_alpha_3": "KEN",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Kenya"
+                            }
+                        }
+                    },
+                    "locality": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpEU3Ax",
+                        "name": "Nairobi West",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi West"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Feature",
+            "id": "dXJuOm1ieHBsYzpEUXAx",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    36.837973,
+                    -1.311155
+                ]
+            },
+            "properties": {
+                "mapbox_id": "dXJuOm1ieHBsYzpEUXAx",
+                "feature_type": "locality",
+                "full_address": "Nairobi South, Nairobi, Kenya",
+                "name": "Nairobi South",
+                "name_preferred": "Nairobi South",
+                "coordinates": {
+                    "longitude": 36.837973,
+                    "latitude": -1.311155
+                },
+                "place_formatted": "Nairobi, Kenya",
+                "bbox": [
+                    36.8281174,
+                    -1.3185068,
+                    36.8520622,
+                    -1.303785
+                ],
+                "context": {
+                    "place": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                        "name": "Nairobi",
+                        "wikidata_id": "Q3870",
+                        "short_code": "KE-30",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi"
+                            }
+                        }
+                    },
+                    "region": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCT1Ix",
+                        "name": "Nairobi",
+                        "wikidata_id": "Q3870",
+                        "region_code": "30",
+                        "region_code_full": "KE-30",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi"
+                            }
+                        }
+                    },
+                    "country": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpJblU",
+                        "name": "Kenya",
+                        "wikidata_id": "Q114",
+                        "country_code": "KE",
+                        "country_code_alpha_3": "KEN",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Kenya"
+                            }
+                        }
+                    },
+                    "locality": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpEUXAx",
+                        "name": "Nairobi South",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nairobi South"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Feature",
+            "id": "dXJuOm1ieHBsYzplS2gx",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    37.022625,
+                    -0.17146
+                ]
+            },
+            "properties": {
+                "mapbox_id": "dXJuOm1ieHBsYzplS2gx",
+                "feature_type": "place",
+                "full_address": "Naro Moru, Nyeri, Kenya",
+                "name": "Naro Moru",
+                "name_preferred": "Naro Moru",
+                "coordinates": {
+                    "longitude": 37.022625,
+                    "latitude": -0.17146
+                },
+                "place_formatted": "Nyeri, Kenya",
+                "bbox": [
+                    37.0066074,
+                    -0.1805384,
+                    37.0290199,
+                    -0.157729
+                ],
+                "context": {
+                    "region": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpCWVIx",
+                        "name": "Nyeri",
+                        "wikidata_id": "Q749665",
+                        "region_code": "36",
+                        "region_code_full": "KE-36",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nyeri"
+                            }
+                        }
+                    },
+                    "country": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpJblU",
+                        "name": "Kenya",
+                        "wikidata_id": "Q114",
+                        "country_code": "KE",
+                        "country_code_alpha_3": "KEN",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Kenya"
+                            }
+                        }
+                    },
+                    "place": {
+                        "mapbox_id": "dXJuOm1ieHBsYzplS2gx",
+                        "name": "Naro Moru",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Naro Moru"
+                            }
+                        },
+                        "wikidata_id": "Q2743647"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Feature",
+            "id": "dXJuOm1ieHBsYzpnVWgx",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    36.78081,
+                    2.185185
+                ]
+            },
+            "properties": {
+                "mapbox_id": "dXJuOm1ieHBsYzpnVWgx",
+                "feature_type": "place",
+                "full_address": "Nyiro, Samburu, Kenya",
+                "name": "Nyiro",
+                "name_preferred": "Nyiro",
+                "coordinates": {
+                    "longitude": 36.78081,
+                    "latitude": 2.185185
+                },
+                "place_formatted": "Samburu, Kenya",
+                "bbox": [
+                    36.5831642,
+                    1.8572468,
+                    37.0023117,
+                    2.5158432
+                ],
+                "context": {
+                    "region": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpBOFIx",
+                        "name": "Samburu",
+                        "wikidata_id": "Q2096419",
+                        "region_code": "37",
+                        "region_code_full": "KE-37",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Samburu"
+                            }
+                        }
+                    },
+                    "country": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpJblU",
+                        "name": "Kenya",
+                        "wikidata_id": "Q114",
+                        "country_code": "KE",
+                        "country_code_alpha_3": "KEN",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Kenya"
+                            }
+                        }
+                    },
+                    "place": {
+                        "mapbox_id": "dXJuOm1ieHBsYzpnVWgx",
+                        "name": "Nyiro",
+                        "translations": {
+                            "en": {
+                                "language": "en",
+                                "name": "Nyiro"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "attribution": "NOTICE: © 2024 Mapbox and its suppliers. All rights reserved. Use of this data is subject to the Mapbox Terms of Service (https://www.mapbox.com/about/maps/). This response and the information it contains may not be retained."
+}
