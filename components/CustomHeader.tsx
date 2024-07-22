@@ -25,18 +25,18 @@ const CustomHeader = () => {
                     <Entypo name="menu" size={24} color="black" />
                     {/* <Text style={{ color: '#fff', fontWeight: '500', fontSize: 16 }}>JL</Text> */}
                 </TouchableOpacity>
-                {/* <View style={styles.headerStyle}>
+                <View style={styles.headerStyle}>
                     <FontAwesome5 name="truck" size={24} color="black" />
                     <Text style={styles.headerText}>MoveEasy</Text>
-                </View> */}
-                <View style={styles.searchSection}>
+                </View>
+                {/* <View style={styles.searchSection}>
                     <Ionicons
                         style={styles.searchIcon}
                         name='search' size={20} color={Colors.dark} />
                     <TextInput style={styles.input}
                         placeholder='Search'
                         placeholderTextColor={Colors.dark} />
-                </View>
+                </View> */}
 
                 <View style={styles.circle}>
                     <TouchableOpacity style={styles.roundButton}>

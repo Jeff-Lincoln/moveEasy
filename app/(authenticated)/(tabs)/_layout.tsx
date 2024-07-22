@@ -8,12 +8,18 @@ import { Ionicons, MaterialIcons, Octicons, FontAwesome, FontAwesome5 } from '@e
 import { Drawer } from 'expo-router/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomHeader from '@/components/CustomHeader';
+import { Feather } from '@expo/vector-icons';
+import { Link, Stack } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { Provider } from 'react-redux';
+import { store } from '@/app/context/store'
 
 const CustomDrawerContent = (props: any) => {
     const { navigation } = props;
     const { top, bottom } = useSafeAreaInsets();
 
     return (
+
         <View style={styles.drawerContainer}>
             <DrawerContentScrollView {...props} contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.profileContainer}>
@@ -39,93 +45,159 @@ const CustomDrawerContent = (props: any) => {
 
 const Layout = () => {
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-            <StatusBar style="dark" />
-            <Drawer
-                drawerContent={CustomDrawerContent}
-                screenOptions={{
-                    drawerHideStatusBarOnOpen: false,
-                    drawerActiveBackgroundColor: '#FFEA00',
-                    drawerActiveTintColor: "#000",
-                    drawerInactiveTintColor: '#fff',
-                    headerStyle: { backgroundColor: '#000' },
-                    headerTintColor: '#fff',
-                    drawerLabelStyle: { fontWeight: 'bold' },
-                }}>
-                <Drawer.Screen
-                    name="home"
-                    options={{
-                        drawerLabel: 'Home',
-                        headerTitle: "Home",
-                        drawerIcon: ({ size, color }) => (
-                            <Ionicons name="home-outline" size={size} color={color} />
-                        ),
-                        header: () => <CustomHeader />,
-                        headerTransparent: true,
-                    }}
-                />
-                <Drawer.Screen
-                    name="myOrders"
-                    options={{
-                        drawerLabel: 'My Orders',
-                        headerTitle: "My Orders",
-                        drawerIcon: ({ size, color }) => (
-                            <Ionicons name="card" size={size} color={color} />
-                        ),
-                    }}
-                />
-                <Drawer.Screen
-                    name="Profile"
-                    options={{
-                        drawerLabel: 'Profile',
-                        headerTitle: "Profile",
-                        drawerIcon: ({ size, color }) => (
-                            <Ionicons name="person-outline" size={size} color={color} />
-                        ),
-                    }}
-                />
-                <Drawer.Screen
-                    name="Payment"
-                    options={{
-                        drawerLabel: 'Payment',
-                        headerTitle: "Payment",
-                        drawerIcon: ({ size, color }) => (
-                            <MaterialIcons name="payments" size={size} color={color} />
-                        ),
-                    }}
-                />
-                <Drawer.Screen
-                    name="CheckList"
-                    options={{
-                        drawerLabel: 'CheckList',
-                        headerTitle: "CheckList",
-                        drawerIcon: ({ size, color }) => (
-                            <Octicons name="checklist" size={size} color={color} />
-                        ),
-                    }}
-                />
-                <Drawer.Screen
-                    name="Chats"
-                    options={{
-                        drawerLabel: 'Chats',
-                        headerTitle: "Chats",
-                        drawerIcon: ({ size, color }) => (
-                            <FontAwesome name="wechat" size={size} color={color} />
-                        ),
-                    }}
-                />
-                <Drawer.Screen
-                    name="FreeDrops"
-                    options={{
-                        drawerLabel: 'FreeDrops',
-                        headerTitle: "FreeDrops",
-                        drawerIcon: ({ size, color }) => (
-                            <FontAwesome5 name="gift" size={size} color={color} />
-                        ),
-                    }}
-                />
-            </Drawer>
-        </GestureHandlerRootView>
+        <Provider store={store}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                <StatusBar style="dark" />
+                <Drawer
+                    drawerContent={CustomDrawerContent}
+                    screenOptions={{
+                        drawerHideStatusBarOnOpen: false,
+                        drawerActiveBackgroundColor: '#FFEA00',
+                        drawerActiveTintColor: "#000",
+                        drawerInactiveTintColor: '#fff',
+                        headerStyle: { backgroundColor: '#000' },
+                        headerTintColor: '#fff',
+                        drawerLabelStyle: { fontWeight: 'bold' },
+                    }}>
+                    <Drawer.Screen
+                        name="home"
+                        options={{
+                            drawerLabel: 'Home',
+                            headerTitle: "Home",
+                            drawerIcon: ({ size, color }) => (
+                                <Ionicons name="home-outline" size={size} color={color} />
+                            ),
+                            header: () => <CustomHeader />,
+                            headerTransparent: true,
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="myOrders"
+                        options={{
+                            drawerLabel: 'My Orders',
+                            headerTitle: "My Orders",
+                            drawerIcon: ({ size, color }) => (
+                                <Ionicons name="card" size={size} color={color} />
+                            ),
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="Profile"
+                        options={{
+                            drawerLabel: 'Profile',
+                            headerTitle: "Profile",
+                            drawerIcon: ({ size, color }) => (
+                                <Ionicons name="person-outline" size={size} color={color} />
+                            ),
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="Payment"
+                        options={{
+                            drawerLabel: 'Payment',
+                            headerTitle: "Payment",
+                            drawerIcon: ({ size, color }) => (
+                                <MaterialIcons name="payments" size={size} color={color} />
+                            ),
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="CheckList"
+                        options={{
+                            drawerLabel: 'CheckList',
+                            headerTitle: "CheckList",
+                            drawerIcon: ({ size, color }) => (
+                                <Octicons name="checklist" size={size} color={color} />
+                            ),
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="Chats"
+                        options={{
+                            drawerLabel: 'Chats',
+                            headerTitle: "Chats",
+                            drawerIcon: ({ size, color }) => (
+                                <FontAwesome name="wechat" size={size} color={color} />
+                            ),
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="FreeDrops"
+                        options={{
+                            drawerLabel: 'FreeDrops',
+                            headerTitle: "FreeDrops",
+                            drawerIcon: ({ size, color }) => (
+                                <FontAwesome5 name="gift" size={size} color={color} />
+                            ),
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="vehicles"
+                        options={{
+                            drawerLabel: 'Vehicles',
+                            headerTitle: "",
+                            headerStyle: {
+                                backgroundColor: '#fff', // Dark gray background color
+                            },
+                            // headerShown: false,
+                            drawerIcon: ({ size, color }) => (
+                                <Feather name="truck" size={size} color={color} />
+                            ),
+                            headerLeft: () => (
+                                <Link href={'/home'} asChild>
+                                    <TouchableOpacity style={styles.arrowLeftButton}>
+                                        <Ionicons name="arrow-back-outline" size={34} color={Colors.dark} />
+                                    </TouchableOpacity>
+                                </Link>
+                            ),
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="vehicleDetail"
+                        options={{
+                            drawerLabel: 'VehiclesDetail',
+                            headerTitle: "",
+                            headerStyle: {
+                                backgroundColor: '#fff', // Dark gray background color
+                            },
+                            // headerShown: false,
+                            drawerIcon: ({ size, color }) => (
+                                <Feather name="truck" size={size} color={color} />
+                            ),
+                            headerLeft: () => (
+                                <Link href={'/vehicles'} asChild>
+                                    <TouchableOpacity style={styles.arrowLeftButton}>
+                                        <Ionicons name="arrow-back-outline" size={34} color={Colors.dark} />
+                                    </TouchableOpacity>
+                                </Link>
+                            ),
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="CalendarScreen"
+                        options={{
+                            drawerLabel: 'calender',
+                            headerTitle: "Schedule Your Pickup",
+                            headerStyle: {
+                                backgroundColor: '#f5f5',
+                                // Dark gray background color
+                            },
+                            headerShown: true,
+                            drawerIcon: ({ size, color }) => (
+                                <Feather name="truck" size={size} color={color} />
+                            ),
+                            // headerLeft: () => (
+                            //     <Link href={'/vehicleDetail'} asChild>
+                            //         <TouchableOpacity style={styles.arrowLeftButton}>
+                            //             <Ionicons name="arrow-back-outline" size={34} color={Colors.dark} />
+                            //         </TouchableOpacity>
+                            //     </Link>
+                            // ),
+                        }}
+                    />
+                </Drawer>
+            </GestureHandlerRootView>
+        </Provider>
     );
 };
 
@@ -179,6 +251,14 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
+    arrowLeftButton: {
+        padding: 10,
+        paddingLeft: 20,
+        paddingRight: 20,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
 });
 
 

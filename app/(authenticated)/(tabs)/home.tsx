@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import Mapbox, { Camera, LineLayer, LocationPuck, MapView, ShapeSource, SymbolLayer } from '@rnmapbox/maps';
@@ -8,7 +8,8 @@ import { AntDesign } from '@expo/vector-icons';
 import { geoCoding } from '@/services/geoCoding';
 import { getDirections } from '@/services/directions';
 import { BottomSheetTextInputProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetTextInput';
-import { OnPressEvent } from '@rnmapbox/maps/lib/typescript/src/types/OnPressEvent';
+import { useRouter } from 'expo-router';
+import Colors from '@/constants/Colors';
 
 const HomePage: React.FC = () => {
     const accessToken = process.env.EXPO_PUBLIC_MAPBOX_KEY || '';
@@ -18,8 +19,12 @@ const HomePage: React.FC = () => {
     const [destinationLocation, setDestinationLocation] = useState<number[] | null>(null);
     const [directionCoordinates, setDirectionCoordinates] = useState<number[][] | null>(null);
     const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [originSet, setOriginSet] = useState(false);
+    const [destinationSet, setDestinationSet] = useState(false);
 
-    const snapPoints = useMemo(() => ['25%', '50%', '75%', '90%'], []);
+    const router = useRouter();
+
+    const snapPoints = ['25%', '50%', '75%', '90%'];
     const bottomSheetRef = useRef<BottomSheet>(null);
 
     const handleOpenPress = () => {
@@ -43,6 +48,8 @@ const HomePage: React.FC = () => {
             const [pickupCoordinates, destinationCoordinates] = await geoCoding(from, to);
             setPickupLocation(pickupCoordinates);
             setDestinationLocation(destinationCoordinates);
+            setOriginSet(!!pickupCoordinates);
+            setDestinationSet(!!destinationCoordinates);
         } catch (error: any) {
             Alert.alert('Error fetching coordinates', error.message);
         }
@@ -52,12 +59,12 @@ const HomePage: React.FC = () => {
         try {
             await fetchCoordinates();
             if (pickupLocation && destinationLocation) {
+                bottomSheetRef.current?.close();// Collapse bottom sheet
                 const directions = await getDirections({
                     pickupCoordinates: pickupLocation as [number, number],
                     destinationCoordinates: destinationLocation as [number, number]
                 });
                 setDirectionCoordinates(directions);
-                bottomSheetRef.current?.close(); // Collapse bottom sheet
             }
         } catch (error: any) {
             Alert.alert('Error fetching directions', error.message);
@@ -69,6 +76,12 @@ const HomePage: React.FC = () => {
         []
     );
 
+    const navigateToNextScreen = () => {
+        // Implement navigation to next screen here
+        router.push('/vehicles')
+        // console.log('Navigate to next screen');
+    };
+
     if (!accessToken) {
         return (
             <SafeAreaView style={styles.errorContainer}>
@@ -79,17 +92,19 @@ const HomePage: React.FC = () => {
 
     Mapbox.setAccessToken(accessToken);
 
+
     return (
         <>
             <StatusBar style="dark" />
             <View style={styles.container}>
                 <MapView
                     style={styles.map}
+                    // styleURL="mapbox://styles/mapbox/navigation-night-v1"
                     styleURL="mapbox://styles/mapbox/outdoors-v12"
                     zoomEnabled={true}
                     rotateEnabled={false}
                 >
-                    <Camera followUserLocation followZoomLevel={16} animationMode={'flyTo'} />
+                    <Camera followUserLocation followZoomLevel={10} animationMode={'flyTo'} />
                     <LocationPuck
                         topImage="topImage"
                         visible={true}
@@ -178,10 +193,26 @@ const HomePage: React.FC = () => {
                         </ShapeSource>
                     )}
                 </MapView>
-                <TouchableOpacity style={styles.button} onPress={handleOpenPress}>
-                    <Text style={styles.buttonText}>Book Move-Easy</Text>
-                    <AntDesign name="arrowright" size={24} color="white" />
-                </TouchableOpacity>
+
+
+                <View style={styles.buttonContainer}>
+                    {/* Enter Location Button */}
+                    <TouchableOpacity style={styles.enterLocationButton} onPress={handleOpenPress}>
+                        <Text style={styles.buttonText}>Enter Location</Text>
+                        {/* <AntDesign name="arrowright" size={24} color="white" /> */}
+                    </TouchableOpacity>
+
+                    {/* Continue Button */}
+                    <TouchableOpacity
+                        style={[styles.continueButton, { opacity: originSet && destinationSet ? 1 : 0.5 }]}
+                        disabled={!originSet || !destinationSet}
+                        onPress={navigateToNextScreen}
+                    >
+                        <Text style={styles.buttonText}>Continue</Text>
+                        <AntDesign name="arrowright" size={24} color="white" />
+                    </TouchableOpacity>
+                </View>
+
                 <BottomSheet
                     ref={bottomSheetRef}
                     snapPoints={snapPoints}
@@ -255,13 +286,34 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    button: {
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         position: 'absolute',
         bottom: 30,
-        right: 30,
+        left: 20,
+        right: 20,
+        paddingHorizontal: 10, // Adjust this to increase/decrease gap between buttons
+    },
+    enterLocationButton: {
         backgroundColor: '#007AFF',
         borderRadius: 50,
-        padding: 15,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    continueButton: {
+        backgroundColor: '#007AFF',
+        borderRadius: 50,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -275,6 +327,10 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         marginRight: 10,
+    },
+    buttonText2: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
     bottomSheetContainer: {
         padding: 20,
@@ -296,31 +352,21 @@ const styles = StyleSheet.create({
     input: {
         backgroundColor: '#f0f0f0',
         borderRadius: 10,
-        padding: 15,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
         marginBottom: 15,
     },
     suggestionsContainer: {
         backgroundColor: '#e0e0e0',
         borderRadius: 10,
-        padding: 10,
+        paddingVertical: 10,
         maxHeight: 150,
         overflow: 'scroll',
     },
     suggestionItem: {
-        padding: 10,
+        paddingVertical: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
-    },
-    continueButton: {
-        backgroundColor: '#007AFF',
-        borderRadius: 10,
-        paddingVertical: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    buttonText2: {
-        color: '#fff',
-        fontWeight: 'bold',
     },
     errorContainer: {
         flex: 1,
@@ -335,6 +381,747 @@ const styles = StyleSheet.create({
         color: '#FF6347',
     },
 });
+
+
+// import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+// import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+// import { StatusBar } from 'expo-status-bar';
+// import Mapbox, { Camera, LineLayer, LocationPuck, MapView, ShapeSource, SymbolLayer } from '@rnmapbox/maps';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import BottomSheet, { BottomSheetBackdrop, BottomSheetTextInput } from '@gorhom/bottom-sheet';
+// import { AntDesign, Entypo } from '@expo/vector-icons';
+// import { geoCoding } from '@/services/geoCoding';
+// import { getDirections } from '@/services/directions';
+// import { BottomSheetTextInputProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetTextInput';
+
+// const HomePage: React.FC = () => {
+//     const accessToken = process.env.EXPO_PUBLIC_MAPBOX_KEY || '';
+//     const [from, setFrom] = useState('');
+//     const [to, setTo] = useState('');
+//     const [pickupLocation, setPickupLocation] = useState<number[] | null>(null);
+//     const [destinationLocation, setDestinationLocation] = useState<number[] | null>(null);
+//     const [directionCoordinates, setDirectionCoordinates] = useState<number[][] | null>(null);
+//     const [suggestions, setSuggestions] = useState<string[]>([]);
+//     const [originSet, setOriginSet] = useState(false);
+//     const [destinationSet, setDestinationSet] = useState(false);
+
+//     const snapPoints = useMemo(() => ['25%', '50%', '75%', '90%'], []);
+//     const bottomSheetRef = useRef<BottomSheet>(null);
+
+//     const handleOpenPress = () => {
+//         bottomSheetRef.current?.snapToIndex(1);
+//     };
+
+//     const handleClosePress = () => {
+//         bottomSheetRef.current?.close();
+//     };
+
+//     const pickupInputRef = useRef<BottomSheetTextInputProps>(null);
+//     const destinationInputRef = useRef<BottomSheetTextInputProps>(null);
+
+//     const handleInputChange = (text: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+//         setter(text);
+//         // You can add debouncing logic here to fetch suggestions
+//     };
+
+//     const fetchCoordinates = async () => {
+//         try {
+//             const [pickupCoordinates, destinationCoordinates] = await geoCoding(from, to);
+//             setPickupLocation(pickupCoordinates);
+//             setDestinationLocation(destinationCoordinates);
+//             setOriginSet(!!pickupCoordinates);
+//             setDestinationSet(!!destinationCoordinates);
+//         } catch (error: any) {
+//             Alert.alert('Error fetching coordinates', error.message);
+//         }
+//     };
+
+//     const handleOnPressContinue = async () => {
+//         try {
+//             await fetchCoordinates();
+//             if (pickupLocation && destinationLocation) {
+//                 const directions = await getDirections({
+//                     pickupCoordinates: pickupLocation as [number, number],
+//                     destinationCoordinates: destinationLocation as [number, number]
+//                 });
+//                 setDirectionCoordinates(directions);
+//                 bottomSheetRef.current?.close(); // Collapse bottom sheet
+//             }
+//         } catch (error: any) {
+//             Alert.alert('Error fetching directions', error.message);
+//         }
+//     };
+
+//     const renderBackdrop = useCallback(
+//         (props: any) => <BottomSheetBackdrop appearsOnIndex={2} disappearsOnIndex={0} {...props} />,
+//         []
+//     );
+
+//     const navigateToNextScreen = () => {
+//         // Implement navigation to next screen here
+//         console.log('Navigate to next screen');
+//     };
+
+//     if (!accessToken) {
+//         return (
+//             <SafeAreaView style={styles.errorContainer}>
+//                 <Text style={styles.errorText}>Map cannot be displayed without a valid access token</Text>
+//             </SafeAreaView>
+//         );
+//     }
+
+//     Mapbox.setAccessToken(accessToken);
+
+//     return (
+//         <>
+//             <StatusBar style="dark" />
+//             <View style={styles.container}>
+//                 <MapView
+//                     style={styles.map}
+//                     styleURL="mapbox://styles/mapbox/outdoors-v12"
+//                     zoomEnabled={true}
+//                     rotateEnabled={false}
+//                 >
+//                     <Camera followUserLocation followZoomLevel={10} animationMode={'flyTo'} />
+//                     <LocationPuck
+//                         topImage="topImage"
+//                         visible={true}
+//                         scale={['interpolate', ['linear'], ['zoom'], 10, 1.0, 20, 4.0]}
+//                         pulsing={{
+//                             isEnabled: true,
+//                             color: 'blue',
+//                             radius: 100.0,
+//                         }}
+//                     />
+
+//                     {pickupLocation && (
+//                         <ShapeSource
+//                             id="pickupSource"
+//                             shape={{
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'Point',
+//                                     coordinates: pickupLocation,
+//                                 },
+//                             }}
+//                         >
+//                             <SymbolLayer
+//                                 id="pickupSymbol"
+//                                 style={{
+//                                     iconImage: 'marker-15',
+//                                     iconSize: 1.5,
+//                                     iconOffset: [0, -15],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+
+//                     {destinationLocation && (
+//                         <ShapeSource
+//                             id="destinationSource"
+//                             shape={{
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'Point',
+//                                     coordinates: destinationLocation,
+//                                 },
+//                             }}
+//                         >
+//                             <SymbolLayer
+//                                 id="destinationSymbol"
+//                                 style={{
+//                                     iconImage: 'marker-15',
+//                                     iconSize: 1.5,
+//                                     iconOffset: [0, -15],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+
+//                     {directionCoordinates && (
+//                         <ShapeSource
+//                             id="routeSource"
+//                             lineMetrics
+//                             shape={{
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'LineString',
+//                                     coordinates: directionCoordinates,
+//                                 },
+//                             }}
+//                         >
+//                             <LineLayer
+//                                 id="line-background"
+//                                 style={{
+//                                     lineColor: 'red',
+//                                     lineWidth: 6,
+//                                     lineOpacity: 0.4,
+//                                 }}
+//                             />
+//                             <LineLayer
+//                                 id="line-dashed"
+//                                 style={{
+//                                     lineColor: 'yellow',
+//                                     lineCap: 'round',
+//                                     lineJoin: 'round',
+//                                     lineWidth: 6,
+//                                     lineDasharray: [0, 4, 3],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+//                 </MapView>
+
+//                 <View style={styles.buttonContainer}>
+//     {/* Enter Location Button */}
+//     <TouchableOpacity style={styles.enterLocationButton} onPress={handleOpenPress}>
+//         <Text style={styles.buttonText}>Enter Location</Text>
+//         <AntDesign name="arrowright" size={24} color="white" />
+//     </TouchableOpacity>
+
+//     {/* Continue Button */}
+//     <TouchableOpacity
+//         style={[styles.continueButton, { opacity: originSet && destinationSet ? 1 : 0.5 }]}
+//         disabled={!originSet || !destinationSet}
+//         onPress={navigateToNextScreen}
+//     >
+//         <Text style={styles.buttonText}>Continue</Text>
+//         <AntDesign name="arrowright" size={24} color="white" />
+//     </TouchableOpacity>
+// </View>
+
+
+
+
+//                 <BottomSheet
+//                     ref={bottomSheetRef}
+//                     snapPoints={snapPoints}
+//                     backdropComponent={renderBackdrop}
+//                     index={0}
+//                     enablePanDownToClose={true}
+//                     handleIndicatorStyle={{ backgroundColor: 'blue' }}
+//                     backgroundStyle={{ backgroundColor: '#fff' }}
+//                 >
+//                     <View style={styles.bottomSheetContainer}>
+//                         <View style={styles.headerContainer}>
+//                             <Text style={styles.headerText}>Book Your Move</Text>
+//                             <TouchableOpacity onPress={handleClosePress}>
+//                                 <AntDesign name="closecircle" size={24} color="#333" />
+//                             </TouchableOpacity>
+//                         </View>
+//                         <View style={styles.inputContainer}>
+//                             <BottomSheetTextInput
+//                                 ref={pickupInputRef}
+//                                 onChangeText={(text) => handleInputChange(text, setFrom)}
+//                                 value={from}
+//                                 style={styles.input}
+//                                 placeholder="Pickup Location"
+//                                 placeholderTextColor="#888"
+//                             />
+//                             <BottomSheetTextInput
+//                                 ref={destinationInputRef}
+//                                 onChangeText={(text) => handleInputChange(text, setTo)}
+//                                 value={to}
+//                                 style={styles.input}
+//                                 placeholder="Destination"
+//                                 placeholderTextColor="#888"
+//                             />
+//                             {suggestions.length > 0 && (
+//                                 <View style={styles.suggestionsContainer}>
+//                                     {suggestions.map((suggestion, index) => (
+//                                         <TouchableOpacity
+//                                             key={index}
+//                                             style={styles.suggestionItem}
+//                                             onPress={() => {
+//                                                 setFrom(suggestion);
+//                                                 setSuggestions([]);
+//                                             }}
+//                                         >
+//                                             <Text>{suggestion}</Text>
+//                                         </TouchableOpacity>
+//                                     ))}
+//                                 </View>
+//                             )}
+//                         </View>
+//                         <TouchableOpacity style={styles.continueButton} onPress={handleOnPressContinue}>
+//                             <Text style={styles.buttonText2}>Continue</Text>
+//                         </TouchableOpacity>
+//                     </View>
+//                 </BottomSheet>
+//             </View>
+//         </>
+//     );
+// };
+
+// export default HomePage;
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//     },
+//     map: {
+//         flex: 1,
+//         width: '100%',
+//         height: '100%',
+//     },
+//     button: {
+//         position: 'absolute',
+//         bottom: 30,
+//         right: 30,
+//         backgroundColor: '#007AFF',
+//         borderRadius: 50,
+//         padding: 15,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.25,
+//         shadowRadius: 3.84,
+//         elevation: 5,
+//     },
+//     buttonText: {
+//         color: '#fff',
+//         fontWeight: 'bold',
+//         marginRight: 10,
+//     },
+//     bottomSheetContainer: {
+//         padding: 20,
+//         backgroundColor: '#fff',
+//     },
+//     headerContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         marginBottom: 15,
+//     },
+//     headerText: {
+//         fontSize: 20,
+//         fontWeight: 'bold',
+//     },
+//     inputContainer: {
+//         marginBottom: 15,
+//     },
+//     input: {
+//         backgroundColor: '#f0f0f0',
+//         borderRadius: 10,
+//         padding: 15,
+//         marginBottom: 15,
+//     },
+//     suggestionsContainer: {
+//         backgroundColor: '#e0e0e0',
+//         borderRadius: 10,
+//         padding: 10,
+//         maxHeight: 150,
+//         overflow: 'scroll',
+//     },
+//     suggestionItem: {
+//         padding: 10,
+//         borderBottomWidth: 1,
+//         borderBottomColor: '#ccc',
+//     },
+//     continueButton: {
+//         backgroundColor: '#007AFF',
+//         borderRadius: 50,
+//         padding: 15,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.25,
+//         shadowRadius: 3.84,
+//         elevation: 5,
+//     },
+//     buttonText2: {
+//         color: '#fff',
+//         fontWeight: 'bold',
+//     },
+//     errorContainer: {
+//         flex: 1,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         backgroundColor: '#fff',
+//     },
+//     errorText: {
+//         fontSize: 18,
+//         fontWeight: 'bold',
+//         textAlign: 'center',
+//         color: '#FF6347',
+//     },
+//     buttonContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         // alignItems: 'center',
+//         position: 'absolute',
+//         bottom: 30,
+//         gap: 10
+//         // right: 30,
+//     },
+//     enterLocationButton: {
+//         backgroundColor: '#007AFF',
+//         borderRadius: 50,
+//         padding: 15,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.25,
+//         shadowRadius: 3.84,
+//         elevation: 5,
+//     },
+// });
+
+
+
+// import React, { useCallback, useMemo, useRef, useState } from 'react';
+// import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+// import { StatusBar } from 'expo-status-bar';
+// import Mapbox, { Camera, LineLayer, LocationPuck, MapView, ShapeSource, SymbolLayer } from '@rnmapbox/maps';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import BottomSheet, { BottomSheetBackdrop, BottomSheetTextInput } from '@gorhom/bottom-sheet';
+// import { AntDesign } from '@expo/vector-icons';
+// import { geoCoding } from '@/services/geoCoding';
+// import { getDirections } from '@/services/directions';
+// import { BottomSheetTextInputProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetTextInput';
+// import { OnPressEvent } from '@rnmapbox/maps/lib/typescript/src/types/OnPressEvent';
+// import { Entypo } from '@expo/vector-icons';
+
+
+// const HomePage: React.FC = () => {
+//     const accessToken = process.env.EXPO_PUBLIC_MAPBOX_KEY || '';
+//     const [from, setFrom] = useState('');
+//     const [to, setTo] = useState('');
+//     const [pickupLocation, setPickupLocation] = useState<number[] | null>(null);
+//     const [destinationLocation, setDestinationLocation] = useState<number[] | null>(null);
+//     const [directionCoordinates, setDirectionCoordinates] = useState<number[][] | null>(null);
+//     const [suggestions, setSuggestions] = useState<string[]>([]);
+
+//     const snapPoints = useMemo(() => ['25%', '50%', '75%', '90%'], []);
+//     const bottomSheetRef = useRef<BottomSheet>(null);
+
+//     const handleOpenPress = () => {
+//         bottomSheetRef.current?.snapToIndex(1);
+//     };
+
+//     const handleClosePress = () => {
+//         bottomSheetRef.current?.close();
+//     };
+
+//     const pickupInputRef = useRef<BottomSheetTextInputProps>(null);
+//     const destinationInputRef = useRef<BottomSheetTextInputProps>(null);
+
+//     const handleInputChange = (text: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+//         setter(text);
+//         // You can add debouncing logic here to fetch suggestions
+//     };
+
+//     const fetchCoordinates = async () => {
+//         try {
+//             const [pickupCoordinates, destinationCoordinates] = await geoCoding(from, to);
+//             setPickupLocation(pickupCoordinates);
+//             setDestinationLocation(destinationCoordinates);
+//         } catch (error: any) {
+//             Alert.alert('Error fetching coordinates', error.message);
+//         }
+//     };
+
+//     const handleOnPressContinue = async () => {
+//         try {
+//             await fetchCoordinates();
+//             if (pickupLocation && destinationLocation) {
+//                 const directions = await getDirections({
+//                     pickupCoordinates: pickupLocation as [number, number],
+//                     destinationCoordinates: destinationLocation as [number, number]
+//                 });
+//                 setDirectionCoordinates(directions);
+//                 bottomSheetRef.current?.close(); // Collapse bottom sheet
+//             }
+//         } catch (error: any) {
+//             Alert.alert('Error fetching directions', error.message);
+//         }
+//     };
+
+//     const renderBackdrop = useCallback(
+//         (props: any) => <BottomSheetBackdrop appearsOnIndex={2} disappearsOnIndex={0} {...props} />,
+//         []
+//     );
+
+//     if (!accessToken) {
+//         return (
+//             <SafeAreaView style={styles.errorContainer}>
+//                 <Text style={styles.errorText}>Map cannot be displayed without a valid access token</Text>
+//             </SafeAreaView>
+//         );
+//     }
+
+//     Mapbox.setAccessToken(accessToken);
+
+//     return (
+//         <>
+//             <StatusBar style="dark" />
+//             <View style={styles.container}>
+//                 <MapView
+//                     style={styles.map}
+//                     styleURL="mapbox://styles/mapbox/outdoors-v12"
+//                     zoomEnabled={true}
+//                     rotateEnabled={false}
+//                 >
+//                     <Camera followUserLocation followZoomLevel={10} animationMode={'flyTo'} />
+//                     <LocationPuck
+//                         topImage="topImage"
+//                         visible={true}
+//                         scale={['interpolate', ['linear'], ['zoom'], 10, 1.0, 20, 4.0]}
+//                         pulsing={{
+//                             isEnabled: true,
+//                             color: 'blue',
+//                             radius: 100.0,
+//                         }}
+//                     />
+
+//                     {pickupLocation && (
+//                         <ShapeSource
+//                             id="pickupSource"
+//                             shape={{
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'Point',
+//                                     coordinates: pickupLocation,
+//                                 },
+//                             }}
+//                         >
+//                             <SymbolLayer
+//                                 id="pickupSymbol"
+//                                 style={{
+//                                     iconImage: 'marker-15',
+//                                     iconSize: 1.5,
+//                                     iconOffset: [0, -15],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+
+//                     {destinationLocation && (
+//                         <ShapeSource
+//                             id="destinationSource"
+//                             shape={{
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'Point',
+//                                     coordinates: destinationLocation,
+//                                 },
+//                             }}
+//                         >
+//                             <SymbolLayer
+//                                 id="destinationSymbol"
+//                                 style={{
+//                                     iconImage: 'marker-15',
+//                                     iconSize: 1.5,
+//                                     iconOffset: [0, -15],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+
+//                     {directionCoordinates && (
+//                         <ShapeSource
+//                             id="routeSource"
+//                             lineMetrics
+//                             shape={{
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'LineString',
+//                                     coordinates: directionCoordinates,
+//                                 },
+//                             }}
+//                         >
+//                             <LineLayer
+//                                 id="line-background"
+//                                 style={{
+//                                     lineColor: 'red',
+//                                     lineWidth: 6,
+//                                     lineOpacity: 0.4,
+//                                 }}
+//                             />
+//                             <LineLayer
+//                                 id="line-dashed"
+//                                 style={{
+//                                     lineColor: 'yellow',
+//                                     lineCap: 'round',
+//                                     lineJoin: 'round',
+//                                     lineWidth: 6,
+//                                     lineDasharray: [0, 4, 3],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+//                 </MapView>
+//                 <View style={{ flexDirection: 'row', }}>
+//                 <TouchableOpacity style={styles.button} onPress={handleOpenPress}>
+//                     <Text style={styles.buttonText}>Enter Location</Text>
+//                     <AntDesign name="arrowright" size={24} color="white" />
+//                 </TouchableOpacity>
+//                 <TouchableOpacity style={styles.button} onPress={handleOpenPress}>
+//                     <Text style={styles.buttonText}>Continue</Text>
+//                     <AntDesign name="arrowright" size={24} color="white" />
+//                 </TouchableOpacity>
+//                 </View>
+//                 <BottomSheet
+//                     ref={bottomSheetRef}
+//                     snapPoints={snapPoints}
+//                     backdropComponent={renderBackdrop}
+//                     index={0}
+//                     enablePanDownToClose={true}
+//                     handleIndicatorStyle={{ backgroundColor: 'blue' }}
+//                     backgroundStyle={{ backgroundColor: '#fff' }}
+//                 >
+//                     <View style={styles.bottomSheetContainer}>
+//                         <View style={styles.headerContainer}>
+//                             <Text style={styles.headerText}>Book Your Move</Text>
+//                             <TouchableOpacity onPress={handleClosePress}>
+//                                 <AntDesign name="closecircle" size={24} color="#333" />
+//                             </TouchableOpacity>
+//                         </View>
+//                         <View style={styles.inputContainer}>
+//                             <BottomSheetTextInput
+//                                 ref={pickupInputRef}
+//                                 onChangeText={(text) => handleInputChange(text, setFrom)}
+//                                 value={from}
+//                                 style={styles.input}
+//                                 placeholder="Pickup Location"
+//                                 placeholderTextColor="#888"
+//                             />
+//                             <BottomSheetTextInput
+//                                 ref={destinationInputRef}
+//                                 onChangeText={(text) => handleInputChange(text, setTo)}
+//                                 value={to}
+//                                 style={styles.input}
+//                                 placeholder="Destination"
+//                                 placeholderTextColor="#888"
+//                             />
+//                             {suggestions.length > 0 && (
+//                                 <View style={styles.suggestionsContainer}>
+//                                     {suggestions.map((suggestion, index) => (
+//                                         <TouchableOpacity
+//                                             key={index}
+//                                             style={styles.suggestionItem}
+//                                             onPress={() => {
+//                                                 setFrom(suggestion);
+//                                                 setSuggestions([]);
+//                                             }}
+//                                         >
+//                                             <Text>{suggestion}</Text>
+//                                         </TouchableOpacity>
+//                                     ))}
+//                                 </View>
+//                             )}
+//                         </View>
+//                         <TouchableOpacity style={styles.continueButton} onPress={handleOnPressContinue}>
+//                             <Text style={styles.buttonText2}>Continue</Text>
+//                         </TouchableOpacity>
+//                     </View>
+//                 </BottomSheet>
+//             </View>
+//         </>
+//     );
+// };
+
+// export default HomePage;
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//     },
+//     map: {
+//         flex: 1,
+//         width: '100%',
+//         height: '100%',
+//     },
+//     button: {
+//         position: 'absolute',
+//         bottom: 30,
+//         right: 30,
+//         backgroundColor: '#007AFF',
+//         borderRadius: 50,
+//         padding: 15,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.25,
+//         shadowRadius: 3.84,
+//         elevation: 5,
+//     },
+//     buttonText: {
+//         color: '#fff',
+//         fontWeight: 'bold',
+//         marginRight: 10,
+//     },
+//     bottomSheetContainer: {
+//         padding: 20,
+//         backgroundColor: '#fff',
+//     },
+//     headerContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         marginBottom: 15,
+//     },
+//     headerText: {
+//         fontSize: 20,
+//         fontWeight: 'bold',
+//     },
+//     inputContainer: {
+//         marginBottom: 15,
+//     },
+//     input: {
+//         backgroundColor: '#f0f0f0',
+//         borderRadius: 10,
+//         padding: 15,
+//         marginBottom: 15,
+//     },
+//     suggestionsContainer: {
+//         backgroundColor: '#e0e0e0',
+//         borderRadius: 10,
+//         padding: 10,
+//         maxHeight: 150,
+//         overflow: 'scroll',
+//     },
+//     suggestionItem: {
+//         padding: 10,
+//         borderBottomWidth: 1,
+//         borderBottomColor: '#ccc',
+//     },
+//     continueButton: {
+//         backgroundColor: '#007AFF',
+//         borderRadius: 10,
+//         paddingVertical: 15,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//     },
+//     buttonText2: {
+//         color: '#fff',
+//         fontWeight: 'bold',
+//     },
+//     errorContainer: {
+//         flex: 1,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         backgroundColor: '#fff',
+//     },
+//     errorText: {
+//         fontSize: 18,
+//         fontWeight: 'bold',
+//         textAlign: 'center',
+//         color: '#FF6347',
+//     },
+// });
 
 
 

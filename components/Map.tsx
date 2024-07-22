@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Mapbox, { MapView } from '@rnmapbox/maps';
 
-const accessToken = 'pk.eyJ1IjoiamVmZmxpbmNvbG4iLCJhIjoiY2x5OTVoaXh1MG05MTJzc2F5cWMzeXB3YSJ9.hlvBfPhtmDYpMtWZnfiTSQ';
+const accessToken = process.env.EXPO_PUBLIC_MAPBOX_KEY || '';
 
 Mapbox.setAccessToken(accessToken);
 

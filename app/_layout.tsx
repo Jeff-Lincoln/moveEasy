@@ -85,7 +85,7 @@ function RootNavigator() {
           options={{
             title: "",
             headerBackTitle: "",
-            headerShadowVisible: false,
+            // headerShadowVisible: false,
             headerStyle: { backgroundColor: Colors.background },
             headerRight: () => (
               <Link href={'/screens/help'} asChild>

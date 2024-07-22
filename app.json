@@ -57,6 +57,12 @@
         {
           "locationWhenInUsePermission": "Show current location on map."
         }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "The app needs to access your calendar."
+        }
       ]
     ]
   }
