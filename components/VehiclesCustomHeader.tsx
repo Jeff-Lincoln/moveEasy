@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, Touchable, View } from 'react-native'
 import React from 'react'
 import { BlurView } from 'expo-blur'
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler'
@@ -10,60 +10,61 @@ import { DrawerActions } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome } from '@expo/vector-icons';
-import { useUser } from '@clerk/clerk-expo'
 
-const CustomHeader = () => {
+const vehiclesCustomHeader = () => {
     const { top } = useSafeAreaInsets();
     const navigation = useNavigation();
     const router = useRouter();
-    const { user } = useUser();
-
-    const onPressProfile = () => {
-        router.push('Profile')
-    }
 
     const onToggle = () => {
         navigation.dispatch(DrawerActions.toggleDrawer())
     }
 
+
+    const onClosePress = () => {
+        router.push('home')
+    }
+
     return (
         <>
-            <StatusBar style='light' />
+            <StatusBar style='dark' />
             <View style={{ paddingTop: top }}>
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.roundButton}
                         onPress={onToggle}>
-                        <Entypo name="menu" size={24} color="black" />
+                        <Entypo name="menu" size={26} color="black" />
                         {/* <Text style={{ color: '#fff', fontWeight: '500', fontSize: 16 }}>JL</Text> */}
                     </TouchableOpacity>
-                    <View style={styles.headerStyle}>
-                        <FontAwesome5 name="truck" size={24} color="#fff" />
+                    {/* <View style={styles.headerStyle}>
+                        <FontAwesome5 name="truck" size={24} color="#000" />
                         <Text style={styles.headerText}>Move-Easy</Text>
+                    </View> */}
+                    <View style={styles.searchSection}>
+                        <Ionicons
+                            style={styles.searchIcon}
+                            name='search' size={20} color={Colors.dark} />
+                        <TextInput style={styles.input}
+                            placeholder='Search'
+                            placeholderTextColor={Colors.dark} />
                     </View>
-                    {/* <View style={styles.searchSection}>
-                    <Ionicons
-                        style={styles.searchIcon}
-                        name='search' size={20} color={Colors.dark} />
-                    <TextInput style={styles.input}
-                        placeholder='Search'
-                        placeholderTextColor={Colors.dark} />
-                </View> */}
-
-                    <View style={styles.circle}>
-                        <TouchableOpacity style={styles.profileButton}
-                            onPress={onPressProfile}>
-                            <Image
-                                source={{ uri: user?.imageUrl }} style={styles.profileImage} />
-                            {/* <FontAwesome name="user" size={24} color="black" /> */}
+                    <View>
+                        <TouchableOpacity onPress={onClosePress}>
+                            <FontAwesome name="close" size={30} color="black" />
                         </TouchableOpacity>
                     </View>
+
+                    {/* <View style={styles.circle}>
+                        <TouchableOpacity style={styles.roundButton}>
+                            <MaterialIcons name="my-location" size={20} color="black" />
+                        </TouchableOpacity>
+                    </View> */}
                 </View>
             </View>
         </>
     )
 }
 
-export default CustomHeader
+export default vehiclesCustomHeader;
 
 const styles = StyleSheet.create({
     container: {
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         height: 60,
-        backgroundColor: 'transparent',
+        backgroundColor: '#fff',
         gap: 10,
         paddingHorizontal: 20,
     },
@@ -118,26 +119,8 @@ const styles = StyleSheet.create({
         gap: 6
     },
     headerText: {
-        fontWeight: '900',
-        fontSize: 20,
+        fontWeight: 'bold',
+        fontSize: 24,
         color: '#0ef00e'
-    },
-    profileButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        // backgroundColor: Colors.lightGray,
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: Colors.dark,
-    },
-    profileImage: {
-        width: 40,
-        height: 40,
-        borderRadius: 30,
-        // backgroundColor: Colors.lightGray,
-        resizeMode: 'cover'
     }
 })

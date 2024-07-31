@@ -4,6 +4,7 @@ import { Calendar, DateObject } from 'react-native-calendars';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
 type TimeSlot = {
     time: string;
@@ -48,56 +49,59 @@ const MyCalendar: React.FC = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Calendar
-                style={styles.calendar}
-                onDayPress={handleDatePress}
-                markingType={'custom'}
-                markedDates={selectedDate ? {
-                    [selectedDate.dateString]: {
-                        customStyles: {
-                            container: {
-                                backgroundColor: '#ff6f61', // Highlight color
-                                borderRadius: 15,
-                            },
-                            text: {
-                                color: '#fff',
+        <>
+            <StatusBar style="light" />
+            <SafeAreaView style={styles.container}>
+                <Calendar
+                    style={styles.calendar}
+                    onDayPress={handleDatePress}
+                    markingType={'custom'}
+                    markedDates={selectedDate ? {
+                        [selectedDate.dateString]: {
+                            customStyles: {
+                                container: {
+                                    backgroundColor: '#ff6f61', // Highlight color
+                                    borderRadius: 15,
+                                },
+                                text: {
+                                    color: '#fff',
+                                },
                             },
                         },
-                    },
-                } : {}}
-            />
-            {selectedDate && (
-                <View style={styles.timeSlotsContainer}>
-                    <Text style={styles.timeSlotsTitle}>Select Time Slots for {selectedDate.dateString}</Text>
-                    <FlatList
-                        data={timeSlots}
-                        keyExtractor={(item) => item.time}
-                        renderItem={({ item, index }) => (
-                            <TouchableOpacity
-                                style={[
-                                    styles.timeSlot,
-                                    item.selected && styles.timeSlotSelected,
-                                ]}
-                                onPress={() => handleTimeSlotPress(index)}
-                            >
-                                <Text
+                    } : {}}
+                />
+                {selectedDate && (
+                    <View style={styles.timeSlotsContainer}>
+                        <Text style={styles.timeSlotsTitle}>Select Time Slots for {selectedDate.dateString}</Text>
+                        <FlatList
+                            data={timeSlots}
+                            keyExtractor={(item) => item.time}
+                            renderItem={({ item, index }) => (
+                                <TouchableOpacity
                                     style={[
-                                        styles.timeSlotText,
-                                        item.selected && styles.timeSlotTextSelected,
+                                        styles.timeSlot,
+                                        item.selected && styles.timeSlotSelected,
                                     ]}
+                                    onPress={() => handleTimeSlotPress(index)}
                                 >
-                                    {item.time}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    />
-                </View>
-            )}
-            <TouchableOpacity style={styles.continueButton} onPress={handleContinuePress}>
-                <Text style={styles.continueButtonText}>Continue</Text>
-            </TouchableOpacity>
-        </SafeAreaView>
+                                    <Text
+                                        style={[
+                                            styles.timeSlotText,
+                                            item.selected && styles.timeSlotTextSelected,
+                                        ]}
+                                    >
+                                        {item.time}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                )}
+                <TouchableOpacity style={styles.continueButton} onPress={handleContinuePress}>
+                    <Text style={styles.continueButtonText}>Continue</Text>
+                </TouchableOpacity>
+            </SafeAreaView>
+        </>
     );
 };
 

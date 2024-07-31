@@ -1,15 +1,18 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import Mapbox, { Camera, LineLayer, LocationPuck, MapView, ShapeSource, SymbolLayer } from '@rnmapbox/maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetTextInput } from '@gorhom/bottom-sheet';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Feather } from '@expo/vector-icons';
 import { geoCoding } from '@/services/geoCoding';
 import { getDirections } from '@/services/directions';
 import { BottomSheetTextInputProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetTextInput';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import FlyTo from '@/components/FlyTo';
+import { MaterialIcons } from '@expo/vector-icons';
+import { OnPressEvent } from '@rnmapbox/maps/lib/typescript/src/types/OnPressEvent';
 
 const HomePage: React.FC = () => {
     const accessToken = process.env.EXPO_PUBLIC_MAPBOX_KEY || '';
@@ -22,10 +25,14 @@ const HomePage: React.FC = () => {
     const [originSet, setOriginSet] = useState(false);
     const [destinationSet, setDestinationSet] = useState(false);
 
+    const [isLoading, setIsLoading] = useState(true);
+
+
     const router = useRouter();
 
     const snapPoints = ['25%', '50%', '75%', '90%'];
     const bottomSheetRef = useRef<BottomSheet>(null);
+    const cameraRef = useRef<Camera>(null);
 
     const handleOpenPress = () => {
         bottomSheetRef.current?.snapToIndex(1);
@@ -35,8 +42,8 @@ const HomePage: React.FC = () => {
         bottomSheetRef.current?.close();
     };
 
-    const pickupInputRef = useRef<BottomSheetTextInputProps>(null);
-    const destinationInputRef = useRef<BottomSheetTextInputProps>(null);
+    const pickupInputRef = useRef<any>(null);
+    const destinationInputRef = useRef<any>(null);
 
     const handleInputChange = (text: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
         setter(text);
@@ -55,21 +62,34 @@ const HomePage: React.FC = () => {
         }
     };
 
-    const handleOnPressContinue = async () => {
+    const handleOnPressContinue = async (event: any) => {
         try {
             await fetchCoordinates();
             if (pickupLocation && destinationLocation) {
-                bottomSheetRef.current?.close();// Collapse bottom sheet
+                bottomSheetRef.current?.close(); // Collapse bottom sheet
                 const directions = await getDirections({
                     pickupCoordinates: pickupLocation as [number, number],
-                    destinationCoordinates: destinationLocation as [number, number]
+                    destinationCoordinates: destinationLocation as [number, number],
                 });
                 setDirectionCoordinates(directions);
+                setIsLoading(false);
             }
         } catch (error: any) {
             Alert.alert('Error fetching directions', error.message);
         }
     };
+
+    useEffect(() => {
+        if (originSet && destinationSet && cameraRef.current && pickupLocation && destinationLocation) {
+            const coordinates = [pickupLocation, destinationLocation];
+            const bbox = [
+                [Math.min(pickupLocation[0], destinationLocation[0]), Math.min(pickupLocation[1], destinationLocation[1])], // Min coordinates
+                [Math.max(pickupLocation[0], destinationLocation[0]), Math.max(pickupLocation[1], destinationLocation[1])]  // Max coordinates
+            ];
+            cameraRef.current.fitBounds(bbox[0], bbox[1], 100, 200);
+        }
+        if (!pickupLocation || !destinationLocation) return;
+    }, [pickupLocation, destinationLocation]);
 
     const renderBackdrop = useCallback(
         (props: any) => <BottomSheetBackdrop appearsOnIndex={2} disappearsOnIndex={0} {...props} />,
@@ -77,9 +97,7 @@ const HomePage: React.FC = () => {
     );
 
     const navigateToNextScreen = () => {
-        // Implement navigation to next screen here
-        router.push('/vehicles')
-        // console.log('Navigate to next screen');
+        router.push('/vehicles');
     };
 
     if (!accessToken) {
@@ -90,8 +108,8 @@ const HomePage: React.FC = () => {
         );
     }
 
+    // console.log(pickupLocation, destinationLocation)
     Mapbox.setAccessToken(accessToken);
-
 
     return (
         <>
@@ -99,19 +117,18 @@ const HomePage: React.FC = () => {
             <View style={styles.container}>
                 <MapView
                     style={styles.map}
-                    // styleURL="mapbox://styles/mapbox/navigation-night-v1"
-                    styleURL="mapbox://styles/mapbox/outdoors-v12"
+                    styleURL="mapbox://styles/mapbox/navigation-night-v1"
                     zoomEnabled={true}
-                    rotateEnabled={false}
+                    rotateEnabled={true}
                 >
-                    <Camera followUserLocation followZoomLevel={10} animationMode={'flyTo'} />
+                    <Camera ref={cameraRef} followUserLocation followZoomLevel={15} animationMode="easeTo" />
                     <LocationPuck
                         topImage="topImage"
                         visible={true}
                         scale={['interpolate', ['linear'], ['zoom'], 10, 1.0, 20, 4.0]}
                         pulsing={{
                             isEnabled: true,
-                            color: 'blue',
+                            color: 'orange',
                             radius: 100.0,
                         }}
                     />
@@ -120,6 +137,7 @@ const HomePage: React.FC = () => {
                         <ShapeSource
                             id="pickupSource"
                             shape={{
+                                properties: {},
                                 type: 'Feature',
                                 geometry: {
                                     type: 'Point',
@@ -142,6 +160,7 @@ const HomePage: React.FC = () => {
                         <ShapeSource
                             id="destinationSource"
                             shape={{
+                                properties: {},
                                 type: 'Feature',
                                 geometry: {
                                     type: 'Point',
@@ -165,6 +184,7 @@ const HomePage: React.FC = () => {
                             id="routeSource"
                             lineMetrics
                             shape={{
+                                properties: {},
                                 type: 'Feature',
                                 geometry: {
                                     type: 'LineString',
@@ -186,20 +206,31 @@ const HomePage: React.FC = () => {
                                     lineColor: 'yellow',
                                     lineCap: 'round',
                                     lineJoin: 'round',
-                                    lineWidth: 6,
+                                    lineWidth: 7,
                                     lineDasharray: [0, 4, 3],
                                 }}
                             />
                         </ShapeSource>
                     )}
-                </MapView>
 
+                    {destinationLocation && (
+                        <>
+                            <FlyTo flyToCoordinates={destinationLocation} flyToZoomLevel={16} />
+                            <Feather name="map-pin" size={24} color="pink" />
+                        </>
+                    )}
+                    {pickupLocation && (
+                        <>
+                            <FlyTo flyToCoordinates={pickupLocation} flyToZoomLevel={16} />
+                            <Feather name="map-pin" size={24} color="pink" />
+                        </>
+                    )}
+                </MapView>
 
                 <View style={styles.buttonContainer}>
                     {/* Enter Location Button */}
                     <TouchableOpacity style={styles.enterLocationButton} onPress={handleOpenPress}>
                         <Text style={styles.buttonText}>Enter Location</Text>
-                        {/* <AntDesign name="arrowright" size={24} color="white" /> */}
                     </TouchableOpacity>
 
                     {/* Continue Button */}
@@ -243,28 +274,12 @@ const HomePage: React.FC = () => {
                                 onChangeText={(text) => handleInputChange(text, setTo)}
                                 value={to}
                                 style={styles.input}
-                                placeholder="Destination"
+                                placeholder="Destination Location"
                                 placeholderTextColor="#888"
                             />
-                            {suggestions.length > 0 && (
-                                <View style={styles.suggestionsContainer}>
-                                    {suggestions.map((suggestion, index) => (
-                                        <TouchableOpacity
-                                            key={index}
-                                            style={styles.suggestionItem}
-                                            onPress={() => {
-                                                setFrom(suggestion);
-                                                setSuggestions([]);
-                                            }}
-                                        >
-                                            <Text>{suggestion}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            )}
                         </View>
                         <TouchableOpacity style={styles.continueButton} onPress={handleOnPressContinue}>
-                            <Text style={styles.buttonText2}>Continue</Text>
+                            <Text style={styles.buttonText}>Get Directions</Text>
                         </TouchableOpacity>
                     </View>
                 </BottomSheet>
@@ -273,114 +288,503 @@ const HomePage: React.FC = () => {
     );
 };
 
-export default HomePage;
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
     },
     map: {
-        flex: 1,
         width: '100%',
         height: '100%',
     },
     buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
         position: 'absolute',
         bottom: 30,
         left: 20,
         right: 20,
-        paddingHorizontal: 10, // Adjust this to increase/decrease gap between buttons
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginHorizontal: 10,
     },
     enterLocationButton: {
-        backgroundColor: '#007AFF',
-        borderRadius: 50,
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-        flexDirection: 'row',
+        backgroundColor: Colors.primary,
+        padding: 15,
+        borderRadius: 10,
         alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        justifyContent: 'center'
     },
     continueButton: {
-        backgroundColor: '#007AFF',
-        borderRadius: 50,
-        paddingVertical: 15,
-        paddingHorizontal: 20,
+        backgroundColor: '#0ada3e',
+        padding: 15,
+        borderRadius: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        justifyContent: 'center'
     },
     buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        marginRight: 10,
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold'
     },
-    buttonText2: {
-        color: '#fff',
-        fontWeight: 'bold',
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 18,
     },
     bottomSheetContainer: {
+        flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
     },
     headerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
     },
     headerText: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
     },
     inputContainer: {
-        marginBottom: 15,
+        marginTop: 15,
     },
     input: {
         backgroundColor: '#f0f0f0',
-        borderRadius: 10,
+        borderRadius: 15,
         paddingVertical: 15,
         paddingHorizontal: 20,
-        marginBottom: 15,
-    },
-    suggestionsContainer: {
-        backgroundColor: '#e0e0e0',
-        borderRadius: 10,
-        paddingVertical: 10,
-        maxHeight: 150,
-        overflow: 'scroll',
-    },
-    suggestionItem: {
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-    },
-    errorContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#fff',
-    },
-    errorText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        color: '#FF6347',
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        padding: 10,
     },
 });
+
+export default HomePage;
+
+
+
+// import React, { useCallback, useEffect, useRef, useState } from 'react';
+// import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+// import { StatusBar } from 'expo-status-bar';
+// import Mapbox, { Camera, LineLayer, LocationPuck, MapView, ShapeSource, SymbolLayer } from '@rnmapbox/maps';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import BottomSheet, { BottomSheetBackdrop, BottomSheetTextInput } from '@gorhom/bottom-sheet';
+// import { AntDesign } from '@expo/vector-icons';
+// import { geoCoding } from '@/services/geoCoding';
+// import { getDirections } from '@/services/directions';
+// import { BottomSheetTextInputProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetTextInput';
+// import { useRouter } from 'expo-router';
+// import Colors from '@/constants/Colors';
+// import FlyTo from '@/components/FlyTo';
+// import { OnPressEvent } from '@rnmapbox/maps/lib/typescript/src/types/OnPressEvent';
+// import { Feather } from '@expo/vector-icons';
+
+// interface FlyToProps {
+//     flyToCoordinates: number[]; // Coordinates to fly the map to
+//     flyToZoomLevel: number; // Zoom level to apply when flying
+// }
+
+// const HomePage: React.FC = () => {
+//     const accessToken = process.env.EXPO_PUBLIC_MAPBOX_KEY || '';
+//     const [from, setFrom] = useState('');
+//     const [to, setTo] = useState('');
+//     const [pickupLocation, setPickupLocation] = useState<number[] | null>(null);
+//     const [destinationLocation, setDestinationLocation] = useState<number[] | null>(null);
+//     const [directionCoordinates, setDirectionCoordinates] = useState<number[][] | null>(null);
+//     const [suggestions, setSuggestions] = useState<string[]>([]);
+//     const [originSet, setOriginSet] = useState(false);
+//     const [destinationSet, setDestinationSet] = useState(false);
+
+//     const router = useRouter();
+
+//     const snapPoints = ['25%', '50%', '75%', '90%'];
+//     const bottomSheetRef = useRef<BottomSheet>(null);
+
+//     const handleOpenPress = () => {
+//         bottomSheetRef.current?.snapToIndex(1);
+//     };
+
+//     const handleClosePress = () => {
+//         bottomSheetRef.current?.close();
+//     };
+
+//     const pickupInputRef = useRef<BottomSheetTextInputProps>(null);
+//     const destinationInputRef = useRef<BottomSheetTextInputProps>(null);
+
+//     const handleInputChange = (text: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+//         setter(text);
+//         // You can add debouncing logic here to fetch suggestions
+//     };
+
+
+//     console.log('my current location: ', )
+//     const fetchCoordinates = async () => {
+//         try {
+//             const [pickupCoordinates, destinationCoordinates] = await geoCoding(from, to);
+//             setPickupLocation(pickupCoordinates);
+//             setDestinationLocation(destinationCoordinates);
+//             setOriginSet(!!pickupCoordinates);
+//             setDestinationSet(!!destinationCoordinates);
+//         } catch (error: any) {
+//             Alert.alert('Error fetching coordinates', error.message);
+//         }
+//     };
+
+//     const handleOnPressContinue = async (event: OnPressEvent) => {
+//         // console.log(event)
+//         try {
+//             await fetchCoordinates();
+//             if (pickupLocation && destinationLocation) {
+//                 bottomSheetRef.current?.close();// Collapse bottom sheet
+//                 const directions = await getDirections({
+//                     pickupCoordinates: pickupLocation as [number, number],
+//                     destinationCoordinates: destinationLocation as [number, number]
+//                 });
+//                 setDirectionCoordinates(directions);
+//             }
+//         } catch (error: any) {
+//             Alert.alert('Error fetching directions', error.message);
+//         }
+//     };
+
+//     useEffect(() => {
+//         if (originSet && destinationSet) {
+//             fetchCoordinates();
+//         }
+//     },[pickupLocation, destinationLocation, directionCoordinates])
+
+//     const renderBackdrop = useCallback(
+//         (props: any) => <BottomSheetBackdrop appearsOnIndex={2} disappearsOnIndex={0} {...props} />,
+//         []
+//     );
+
+//     const navigateToNextScreen = () => {
+//         // Implement navigation to next screen here
+//         router.push('/vehicles')
+//         // console.log('Navigate to next screen');
+//     };
+
+//     if (!accessToken) {
+//         return (
+//             <SafeAreaView style={styles.errorContainer}>
+//                 <Text style={styles.errorText}>Map cannot be displayed without a valid access token</Text>
+//             </SafeAreaView>
+//         );
+//     }
+
+//     Mapbox.setAccessToken(accessToken);
+
+
+//     return (
+//         <>
+//             <StatusBar style="dark" />
+//             <View style={styles.container}>
+//                 <MapView
+//                     style={styles.map}
+//                     styleURL="mapbox://styles/mapbox/navigation-night-v1"
+//                     // styleURL="mapbox://styles/mapbox/outdoors-v12"
+//                     zoomEnabled={true}
+//                     rotateEnabled={false}
+//                 >
+//                     <Camera followUserLocation followZoomLevel={15} animationMode={'easeTo'} />
+//                     <LocationPuck
+//                         topImage="topImage"
+//                         visible={true}
+//                         scale={['interpolate', ['linear'], ['zoom'], 10, 1.0, 20, 4.0]}
+//                         pulsing={{
+//                             isEnabled: true,
+//                             color: 'blue',
+//                             radius: 100.0,
+//                         }}
+//                     />
+
+//                     {pickupLocation && (
+//                         <ShapeSource
+//                             id="pickupSource"
+//                             shape={{
+//                                 properties: {},
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'Point',
+//                                     coordinates: pickupLocation,
+//                                 },
+//                             }}
+//                         >
+//                             <SymbolLayer
+//                                 id="pickupSymbol"
+//                                 style={{
+//                                     iconImage: 'marker-15',
+//                                     iconSize: 1.5,
+//                                     iconOffset: [0, -15],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+
+//                     {destinationLocation && (
+//                         <ShapeSource
+//                             id="destinationSource"
+//                             shape={{
+//                                 properties: {},
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'Point',
+//                                     coordinates: destinationLocation,
+//                                 },
+//                             }}
+//                         >
+//                             <SymbolLayer
+//                                 id="destinationSymbol"
+//                                 style={{
+//                                     iconImage: 'marker-15',
+//                                     iconSize: 1.5,
+//                                     iconOffset: [0, -15],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+
+//                     {directionCoordinates && (
+//                         <ShapeSource
+//                             id="routeSource"
+//                             lineMetrics
+//                             shape={{
+//                                 properties: {},
+//                                 type: 'Feature',
+//                                 geometry: {
+//                                     type: 'LineString',
+//                                     coordinates: directionCoordinates,
+//                                 },
+//                             }}
+//                         >
+//                             <LineLayer
+//                                 id="line-background"
+//                                 style={{
+//                                     lineColor: 'red',
+//                                     lineWidth: 6,
+//                                     lineOpacity: 0.4,
+//                                 }}
+//                             />
+//                             <LineLayer
+//                                 id="line-dashed"
+//                                 style={{
+//                                     lineColor: 'yellow',
+//                                     lineCap: 'round',
+//                                     lineJoin: 'round',
+//                                     lineWidth: 7,
+//                                     lineDasharray: [0, 4, 3],
+//                                 }}
+//                             />
+//                         </ShapeSource>
+//                     )}
+
+//                     {destinationLocation && (
+//                         <>
+//                         <FlyTo flyToCoordinates={destinationLocation} flyToZoomLevel={16} />
+//                         <Feather name="map-pin" size={24} color="pink" />
+//                         </>
+//                     )}
+//                     {pickupLocation && (
+//                         <>
+//                         <FlyTo flyToCoordinates={pickupLocation} flyToZoomLevel={16} />
+//                         <Feather name="map-pin" size={24} color="pink" />
+//                         </>
+
+//                     )}
+//                 </MapView>
+
+
+//                 <View style={styles.buttonContainer}>
+//                     {/* Enter Location Button */}
+//                     <TouchableOpacity style={styles.enterLocationButton} onPress={handleOpenPress}>
+//                         <Text style={styles.buttonText}>Enter Location</Text>
+//                         {/* <AntDesign name="arrowright" size={24} color="white" /> */}
+//                     </TouchableOpacity>
+
+//                     {/* Continue Button */}
+//                     <TouchableOpacity
+//                         style={[styles.continueButton, { opacity: originSet && destinationSet ? 1 : 0.5 }]}
+//                         disabled={!originSet || !destinationSet}
+//                         onPress={navigateToNextScreen}
+//                     >
+//                         <Text style={styles.buttonText}>Continue</Text>
+//                         <AntDesign name="arrowright" size={24} color="white" />
+//                     </TouchableOpacity>
+//                 </View>
+
+//                 <BottomSheet
+//                     ref={bottomSheetRef}
+//                     snapPoints={snapPoints}
+//                     backdropComponent={renderBackdrop}
+//                     index={0}
+//                     enablePanDownToClose={true}
+//                     handleIndicatorStyle={{ backgroundColor: 'blue' }}
+//                     backgroundStyle={{ backgroundColor: '#fff' }}
+//                 >
+//                     <View style={styles.bottomSheetContainer}>
+//                         <View style={styles.headerContainer}>
+//                             <Text style={styles.headerText}>Book Your Move</Text>
+//                             <TouchableOpacity onPress={handleClosePress}>
+//                                 <AntDesign name="closecircle" size={24} color="#333" />
+//                             </TouchableOpacity>
+//                         </View>
+//                         <View style={styles.inputContainer}>
+//                             <BottomSheetTextInput
+//                                 ref={pickupInputRef}
+//                                 onChangeText={(text) => handleInputChange(text, setFrom)}
+//                                 value={from}
+//                                 style={styles.input}
+//                                 placeholder="Pickup Location"
+//                                 placeholderTextColor="#888"
+//                             />
+//                             <BottomSheetTextInput
+//                                 ref={destinationInputRef}
+//                                 onChangeText={(text) => handleInputChange(text, setTo)}
+//                                 value={to}
+//                                 style={styles.input}
+//                                 placeholder="Destination"
+//                                 placeholderTextColor="#888"
+//                             />
+//                             {suggestions.length > 0 && (
+//                                 <View style={styles.suggestionsContainer}>
+//                                     {suggestions.map((suggestion, index) => (
+//                                         <TouchableOpacity
+//                                             key={index}
+//                                             style={styles.suggestionItem}
+//                                             onPress={() => {
+//                                                 setFrom(suggestion);
+//                                                 setSuggestions([]);
+//                                             }}
+//                                         >
+//                                             <Text>{suggestion}</Text>
+//                                         </TouchableOpacity>
+//                                     ))}
+//                                 </View>
+//                             )}
+//                         </View>
+//                         <TouchableOpacity style={styles.continueButton} onPress={handleOnPressContinue}>
+//                             <Text style={styles.buttonText2}>Continue</Text>
+//                         </TouchableOpacity>
+//                     </View>
+//                 </BottomSheet>
+//             </View>
+//         </>
+//     );
+// };
+
+// export default HomePage;
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//     },
+//     map: {
+//         flex: 1,
+//         width: '100%',
+//         height: '100%',
+//     },
+//     buttonContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         position: 'absolute',
+//         bottom: 30,
+//         left: 20,
+//         right: 20,
+//         paddingHorizontal: 10, // Adjust this to increase/decrease gap between buttons
+//     },
+//     enterLocationButton: {
+//         backgroundColor: '#007AFF',
+//         borderRadius: 50,
+//         paddingVertical: 15,
+//         paddingHorizontal: 20,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.25,
+//         shadowRadius: 3.84,
+//         elevation: 5,
+//     },
+//     continueButton: {
+//         backgroundColor: 'yellow',
+//         borderRadius: 50,
+//         paddingVertical: 15,
+//         paddingHorizontal: 20,
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.25,
+//         shadowRadius: 3.84,
+//         elevation: 5,
+//     },
+//     buttonText: {
+//         color: '#fff',
+//         fontWeight: 'bold',
+//         marginRight: 10,
+//     },
+//     buttonText2: {
+//         color: '#fff',
+//         fontWeight: 'bold',
+//     },
+//     bottomSheetContainer: {
+//         padding: 20,
+//         backgroundColor: '#fff',
+//     },
+//     headerContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         marginBottom: 15,
+//     },
+//     headerText: {
+//         fontSize: 20,
+//         fontWeight: 'bold',
+//     },
+//     inputContainer: {
+//         marginBottom: 15,
+//     },
+//     input: {
+//         backgroundColor: '#f0f0f0',
+//         borderRadius: 10,
+//         paddingVertical: 15,
+//         paddingHorizontal: 20,
+//         marginBottom: 15,
+//     },
+//     suggestionsContainer: {
+//         backgroundColor: '#e0e0e0',
+//         borderRadius: 10,
+//         paddingVertical: 10,
+//         maxHeight: 150,
+//         overflow: 'scroll',
+//     },
+//     suggestionItem: {
+//         paddingVertical: 10,
+//         borderBottomWidth: 1,
+//         borderBottomColor: '#ccc',
+//     },
+//     errorContainer: {
+//         flex: 1,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         backgroundColor: '#fff',
+//     },
+//     errorText: {
+//         fontSize: 18,
+//         fontWeight: 'bold',
+//         textAlign: 'center',
+//         color: '#FF6347',
+//     },
+// });
 
 
 // import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';

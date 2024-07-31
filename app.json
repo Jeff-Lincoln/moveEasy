@@ -7,11 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jefflincoln.moveEasy1"
@@ -44,18 +39,22 @@
       "expo-asset",
       "expo-secure-store",
       [
-        // highlight-start
         "@rnmapbox/maps",
         {
           "RNMapboxMapsVersion": "11.0.0",
           "RNMapboxMapsDownloadToken": "sk.eyJ1IjoiamVmZmxpbmNvbG4iLCJhIjoiY2x5N2ZlYm0yMDZjMTJxczkzdW16NGcxZCJ9.WgzmZZE3lvyY5uZfG2cEiQ"
         }
-        // highlight-end
       ],
       [
         "expo-location",
         {
           "locationWhenInUsePermission": "Show current location on map."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
       [

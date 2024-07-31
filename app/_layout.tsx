@@ -1,24 +1,26 @@
 import * as SecureStore from 'expo-secure-store';
 import Colors from "@/constants/Colors";
-import { ClerkProvider, SignedIn, useAuth } from "@clerk/clerk-expo";
+import { ClerkLoaded, ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import { ActivityIndicator, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import SplashScreenView from './screens/SplashScreenView';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { SupabaseProvider, useSupaBase } from '@/context/SupabaseContext'
 
-const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 const tokenCache = {
   async getToken(key: string) {
     try {
       const item = await SecureStore.getItemAsync(key);
-      if (item) {
-        console.log(`${key} was used 🔐 \n`);
-      } else {
-        console.log("No values stored under key: " + key);
-      }
+      console.log(`${key} was used 🔐 \n`);
       return item;
     } catch (error) {
       console.error("SecureStore get item error: ", error);
@@ -36,9 +38,28 @@ const tokenCache = {
 };
 
 export default function RootLayout() {
+  const [isSplash, setIsSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSplash(false);
+    }, 3000);
+
+    return () => clearTimeout(timer); // Clean up the timer on unmount
+  }, []);
+
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
-      <RootNavigator />
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
+      <ClerkLoaded>
+        <ActionSheetProvider>
+          <>
+            <StatusBar style='light' />
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              {isSplash ? <SplashScreenView /> : <RootNavigator />}
+            </GestureHandlerRootView>
+          </>
+        </ActionSheetProvider>
+      </ClerkLoaded>
     </ClerkProvider>
   );
 }
@@ -47,77 +68,368 @@ function RootNavigator() {
   const router = useRouter();
   const { isLoaded, isSignedIn } = useAuth();
   const segments = useSegments();
-
+  const colorScheme = useColorScheme();
 
   useEffect(() => {
-    console.log('isSignedIn', isSignedIn);
     if (!isLoaded) return;
 
     const inAuthGroup = segments[0] === "(authenticated)";
 
     if (isSignedIn && !inAuthGroup) {
-      router.replace('/(authenticated)/(tabs)/home')
-    } else if (!SignedIn) {
-      router.replace('/')
+      router.replace('/(authenticated)/(tabs)/Home');
+    } else if (!isSignedIn) {
+      router.replace('/');
     }
   }, [isSignedIn]);
 
   if (!isLoaded) {
-    return <ActivityIndicator />
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar style="dark" />
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="screens/signUp"
-          options={{
-            title: "",
-            headerBackTitle: "",
-            headerShadowVisible: false,
-            headerStyle: { backgroundColor: Colors.background },
-          }}
-        />
-        <Stack.Screen
-          name="screens/login"
-          options={{
-            title: "",
-            headerBackTitle: "",
-            // headerShadowVisible: false,
-            headerStyle: { backgroundColor: Colors.background },
-            headerRight: () => (
-              <Link href={'/screens/help'} asChild>
-                <TouchableOpacity>
-                  <Ionicons name="help-circle-outline" size={34} color={Colors.dark} />
-                </TouchableOpacity>
-              </Link>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="screens/help"
-          options={{
-            title: "Help",
-            presentation: "modal",
-          }}
-        />
-        <Stack.Screen
-          name="verify/[phone]"
-          options={{
-            title: "",
-            headerShadowVisible: false,
-            headerStyle: { backgroundColor: Colors.background },
-          }}
-        />
-        <Stack.Screen name='(authenticated)/(tabs)' options={{
-          headerShown: false
-        }} />
-      </Stack>
-    </GestureHandlerRootView>
+    <SupabaseProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DarkTheme}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          {/* <StatusBar style={colorScheme === 'light' ? "dark" : "light"} /> */}
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="screens/signUp"
+              options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: Colors.background },
+              }}
+            />
+            <Stack.Screen
+              name="screens/login"
+              options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: Colors.background },
+                headerRight: () => (
+                  <Link href={'/screens/help'} asChild>
+                    <TouchableOpacity>
+                      <Ionicons name="help-circle-outline" size={34} color="#000" />
+                    </TouchableOpacity>
+                  </Link>
+                ),
+              }}
+            />
+            <Stack.Screen
+              name="screens/help"
+              options={{
+                title: "Help",
+                presentation: "modal",
+              }}
+            />
+            <Stack.Screen
+              name="verify/[phone]"
+              options={{
+                headerShown: false,
+                headerStyle: { backgroundColor: Colors.background },
+              }}
+            />
+            <Stack.Screen
+              name='(authenticated)/(tabs)'
+              options={{ headerShown: false }}
+            />
+          </Stack>
+        </GestureHandlerRootView>
+      </ThemeProvider>
+    </SupabaseProvider>
   );
 }
+
+
+// import * as SecureStore from 'expo-secure-store';
+// import Colors from "@/constants/Colors";
+// import { ClerkLoaded, ClerkProvider, useAuth } from "@clerk/clerk-expo";
+// import { Ionicons } from "@expo/vector-icons";
+// import { Link, Stack, useRouter, useSegments } from "expo-router";
+// import { StatusBar } from "expo-status-bar";
+// import { ActivityIndicator, Image, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import { useEffect, useState } from 'react';
+// import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+// import { useColorScheme } from '@/hooks/useColorScheme';
+// import SplashScreenView from './screens/SplashScreenView';
+
+
+// const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+
+// const tokenCache = {
+//   async getToken(key: string) {
+//     try {
+//       const item = await SecureStore.getItemAsync(key);
+//       if (item) {
+//         console.log(`${key} was used 🔐 \n`);
+//       } else {
+//         console.log("No values stored under key: " + key);
+//       }
+//       return item;
+//     } catch (error) {
+//       console.error("SecureStore get item error: ", error);
+//       await SecureStore.deleteItemAsync(key);
+//       return null;
+//     }
+//   },
+//   async saveToken(key: string, value: string) {
+//     try {
+//       await SecureStore.setItemAsync(key, value);
+//     } catch (err) {
+//       console.error("SecureStore save item error: ", err);
+//     }
+//   },
+// };
+
+// export default function RootLayout() {
+//   const [isSplash, SetIsSplash] = useState(true);
+//   useEffect(() => {
+//     setTimeout(() => {
+//       SetIsSplash(false);
+//     }, 3000);
+//   }, []);
+
+//   return (
+//     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
+//       {isSplash ? (
+//         <SplashScreenView />
+//       ) : (
+//         <RootNavigator />
+//       )}
+//     </ClerkProvider>
+
+//   );
+// }
+
+// function RootNavigator() {
+//   const router = useRouter();
+//   const { isLoaded, isSignedIn } = useAuth();
+//   const segments = useSegments();
+//   const colorScheme = useColorScheme();
+
+
+//   useEffect(() => {
+//     console.log('isSignedIn', isSignedIn);
+//     if (!isLoaded) return;
+
+//     const inAuthGroup = segments[0] === "(authenticated)";
+
+//     if (isSignedIn && !inAuthGroup) {
+//       router.replace('/(authenticated)/(tabs)/Home');
+//     } else if (!isSignedIn) {
+//       router.replace('/(authenticated)/(tabs)/Home');
+//     }
+//   }, [isSignedIn, isLoaded]);
+
+//   if (!isLoaded) {
+//     return (
+//       <SplashScreenView />
+//       // <View style={{
+//       //   flex: 1,
+//       //   justifyContent: 'center',
+//       //   alignItems: 'center',
+//       //   backgroundColor: '#F5F5F5',
+//       // }}>
+//       //   <ActivityIndicator size="large" color='blue' />
+//       //   <Text>Loading</Text>
+//       // </View>
+//     );
+//   }
+//   return (
+//     <ThemeProvider value={colorScheme === 'light' ? DarkTheme : DefaultTheme}>
+//       <GestureHandlerRootView style={{ flex: 1 }}>
+//         <StatusBar style="light" />
+//         <Stack>
+//           <Stack.Screen name="index" options={{ headerShown: false }} />
+//           <Stack.Screen
+//             name="screens/signUp"
+//             options={{
+//               title: "",
+//               headerBackTitle: "",
+//               headerShadowVisible: false,
+//               headerStyle: { backgroundColor: Colors.background },
+//             }}
+//           />
+//           <Stack.Screen
+//             name="screens/login"
+//             options={{
+//               title: "",
+//               headerBackTitle: "",
+//               headerStyle: { backgroundColor: Colors.background },
+//               headerRight: () => (
+//                 <Link href={'/screens/help'} asChild>
+//                   <TouchableOpacity>
+//                     <Ionicons name="help-circle-outline" size={34} color="#000" />
+//                   </TouchableOpacity>
+//                 </Link>
+//               ),
+//             }}
+//           />
+//           <Stack.Screen
+//             name="screens/help"
+//             options={{
+//               title: "Help",
+//               presentation: "modal",
+//             }}
+//           />
+//           <Stack.Screen
+//             name="verify/[phone]"
+//             options={{
+//               title: "",
+//               headerShadowVisible: false,
+//               headerStyle: { backgroundColor: Colors.background },
+//             }}
+//           />
+//           <Stack.Screen
+//             name='(authenticated)/(tabs)'
+//             options={{ headerShown: false }}
+//           />
+//         </Stack>
+//       </GestureHandlerRootView>
+//     </ThemeProvider>
+//   );
+// }
+
+
+
+// import * as SecureStore from 'expo-secure-store';
+// import Colors from "@/constants/Colors";
+// import { ClerkProvider, SignedIn, useAuth } from "@clerk/clerk-expo";
+// import { Ionicons } from "@expo/vector-icons";
+// import { Link, Stack, useRouter, useSegments } from "expo-router";
+// import { StatusBar } from "expo-status-bar";
+// import { ActivityIndicator, Image, Text, TouchableOpacity, View } from "react-native";
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import { useEffect } from 'react';
+// import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+// import loading from '@/assets/images/loading.jpeg'
+
+// import { useColorScheme } from '@/hooks/useColorScheme';
+
+
+// const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+// const tokenCache = {
+//   async getToken(key: string) {
+//     try {
+//       const item = await SecureStore.getItemAsync(key);
+//       if (item) {
+//         console.log(`${key} was used 🔐 \n`);
+//       } else {
+//         console.log("No values stored under key: " + key);
+//       }
+//       return item;
+//     } catch (error) {
+//       console.error("SecureStore get item error: ", error);
+//       await SecureStore.deleteItemAsync(key);
+//       return null;
+//     }
+//   },
+//   async saveToken(key: string, value: string) {
+//     try {
+//       await SecureStore.setItemAsync(key, value);
+//     } catch (err) {
+//       console.error("SecureStore save item error: ", err);
+//     }
+//   },
+// };
+
+// export default function RootLayout() {
+//   return (
+//     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
+//       <RootNavigator />
+//     </ClerkProvider>
+//   );
+// }
+
+// function RootNavigator() {
+//   const router = useRouter();
+//   const { isLoaded, isSignedIn } = useAuth();
+//   const segments = useSegments();
+//   const colorScheme = useColorScheme();
+
+
+//   useEffect(() => {
+//     console.log('isSignedIn', isSignedIn);
+//     if (!isLoaded) return;
+
+//     const inAuthGroup = segments[0] === "(authenticated)";
+
+//     if (isSignedIn && !inAuthGroup) {
+//       router.replace('/(authenticated)/(tabs)/home')
+//     } else if (!SignedIn) {
+//       router.replace('/')
+//     }
+//   }, [isSignedIn]);
+
+//   if (!isLoaded) {
+//     return <View>
+//       <Image
+//         style={{ flex: 1, width: '100%', height: '100%' }}
+//         source={}
+//       />
+//     </View>
+//   }
+
+//   return (
+//     <ThemeProvider value={colorScheme === 'light' ? DarkTheme : DefaultTheme}>
+//       <GestureHandlerRootView style={{ flex: 1 }}>
+//         <StatusBar style="dark" />
+//         <Stack>
+//           <Stack.Screen name="index" options={{ headerShown: false }} />
+//           <Stack.Screen
+//             name="screens/signUp"
+//             options={{
+//               title: "",
+//               headerBackTitle: "",
+//               headerShadowVisible: false,
+//               headerStyle: { backgroundColor: Colors.background },
+//             }}
+//           />
+//           <Stack.Screen
+//             name="screens/login"
+//             options={{
+//               title: "",
+//               headerBackTitle: "",
+//               // headerShadowVisible: false,
+//               headerStyle: { backgroundColor: Colors.background },
+//               headerRight: () => (
+//                 <Link href={'/screens/help'} asChild>
+//                   <TouchableOpacity>
+//                     <Ionicons name="help-circle-outline" size={34} color={Colors.dark} />
+//                   </TouchableOpacity>
+//                 </Link>
+//               ),
+//             }}
+//           />
+//           <Stack.Screen
+//             name="screens/help"
+//             options={{
+//               title: "Help",
+//               presentation: "modal",
+//             }}
+//           />
+//           <Stack.Screen
+//             name="verify/[phone]"
+//             options={{
+//               title: "",
+//               headerShadowVisible: false,
+//               headerStyle: { backgroundColor: Colors.background },
+//             }}
+//           />
+//           <Stack.Screen name='(authenticated)/(tabs)' options={{
+//             headerShown: false
+//           }} />
+//         </Stack>
+//       </GestureHandlerRootView>
+//     </ThemeProvider>
+//   );
+// }
 
 
 // import * as SecureStore from 'expo-secure-store';

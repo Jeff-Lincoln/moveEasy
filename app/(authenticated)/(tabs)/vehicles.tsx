@@ -1,16 +1,23 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useHeaderHeight } from '@react-navigation/elements';
+import Colors from '@/constants/Colors';
+import { StatusBar } from 'expo-status-bar';
 
 const VehiclesScreen = () => {
     const router = useRouter();
+    const headerHeight = useHeaderHeight();
 
     const navigateToDetail = (vehicleName: string) => {
         router.push(`/vehicleDetail?vehicleName=${vehicleName}`);
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView style={styles.container}
+        // contentContainerStyle={{ paddingTop: headerHeight }}
+        >
+            <StatusBar style='light' />
             <Text style={styles.headerText}>Select your vehicle</Text>
             <Text style={styles.descriptionText}>
                 Choose which vehicle works best for your move. We'll have straps,
@@ -90,6 +97,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 20,
         paddingBottom: 40,
+        backgroundColor: Colors.background,
     },
     headerText: {
         fontSize: 30,
@@ -106,6 +114,7 @@ const styles = StyleSheet.create({
     },
     vehicleContainer: {
         flexDirection: 'column',
+        marginBottom: 80
     },
     vehicleItem: {
         width: '100%',

@@ -1,8 +1,9 @@
-
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
 type Item = {
     id: string;
@@ -13,14 +14,15 @@ type Item = {
 const initialItems: Item[] = [
     { id: '1', name: 'Packing Boxes', checked: false },
     { id: '2', name: 'Bubble Wrap', checked: false },
-    { id: '3', name: 'Packing Tape', checked: false },
-    { id: '4', name: 'Furniture Covers', checked: false },
+    // { id: '3', name: 'Packing Tape', checked: false },
+    // { id: '4', name: 'Furniture Covers', checked: false },
 ];
 
 const CheckList: React.FC = () => {
     const [items, setItems] = useState<Item[]>(initialItems);
     const [newItem, setNewItem] = useState('');
     const navigation = useNavigation();
+    const router = useRouter();
 
     const handleToggleItem = (id: string) => {
         const updatedItems = items.map(item =>
@@ -41,55 +43,55 @@ const CheckList: React.FC = () => {
         };
         setItems([...items, newItemObj]);
         setNewItem('');
-    };
+    }; `2`
 
     const handleContinuePress = () => {
-        navigation.navigate('Payment'); // Adjust to match your route name
+        router.push('Payment')
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>Checklist</Text>
-            </View>
-            <View style={styles.addItemContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Add new item"
-                    value={newItem}
-                    onChangeText={setNewItem}
+        <>
+            <StatusBar style='light' />
+            <View style={styles.container}>
+                <View style={styles.addItemContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Add new item"
+                        value={newItem}
+                        onChangeText={setNewItem}
+                    />
+                    <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
+                        <Ionicons name="add" size={24} color="#fff" />
+                    </TouchableOpacity>
+                </View>
+                <FlatList
+                    data={items}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={[
+                                styles.item,
+                                item.checked && styles.itemChecked
+                            ]}
+                            onPress={() => handleToggleItem(item.id)}
+                        >
+                            <Text style={[
+                                styles.itemText,
+                                item.checked && styles.itemTextChecked
+                            ]}>
+                                {item.name}
+                            </Text>
+                            {item.checked && (
+                                <MaterialIcons name="check-circle" size={24} color="#4caf50" />
+                            )}
+                        </TouchableOpacity>
+                    )}
                 />
-                <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
-                    <Ionicons name="add" size={24} color="#fff" />
+                <TouchableOpacity style={styles.continueButton} onPress={handleContinuePress}>
+                    <Text style={styles.continueButtonText}>Continue to Payment</Text>
                 </TouchableOpacity>
             </View>
-            <FlatList
-                data={items}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={[
-                            styles.item,
-                            item.checked && styles.itemChecked
-                        ]}
-                        onPress={() => handleToggleItem(item.id)}
-                    >
-                        <Text style={[
-                            styles.itemText,
-                            item.checked && styles.itemTextChecked
-                        ]}>
-                            {item.name}
-                        </Text>
-                        {item.checked && (
-                            <MaterialIcons name="check-circle" size={24} color="#4caf50" />
-                        )}
-                    </TouchableOpacity>
-                )}
-            />
-            <TouchableOpacity style={styles.continueButton} onPress={handleContinuePress}>
-                <Text style={styles.continueButtonText}>Continue to Payment</Text>
-            </TouchableOpacity>
-        </View>
+        </>
     );
 };
 

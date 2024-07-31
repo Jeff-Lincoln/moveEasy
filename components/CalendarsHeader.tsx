@@ -1,81 +1,125 @@
+import { StyleSheet, Text, Touchable, View } from 'react-native'
+import React from 'react'
+import { BlurView } from 'expo-blur'
+import { TextInput, TouchableOpacity } from 'react-native-gesture-handler'
+import Colors from '@/constants/Colors'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useNavigation, useRouter } from 'expo-router'
+import { DrawerActions } from '@react-navigation/native';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
+import { FontAwesome } from '@expo/vector-icons';
 
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { Entypo, Ionicons, FontAwesome5 } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-
-const CalendarsHeader: React.FC = () => {
+const CalendarHeader = () => {
     const { top } = useSafeAreaInsets();
     const navigation = useNavigation();
+    const router = useRouter();
 
-    // const onMenuToggle = () => {
-    //     navigation.openDrawer();
-    // };
+    const onToggle = () => {
+        navigation.dispatch(DrawerActions.toggleDrawer())
+    }
 
-    const onLocationPress = () => {
-        // Handle location press action
-    };
+    const onClosePress = () => {
+        router.push('home')
+    }
 
     return (
-        <BlurView intensity={70} tint="light" style={[styles.container, { paddingTop: top }]}>
-            <TouchableOpacity style={styles.menuButton}>
-                <Entypo name="menu" size={24} color="#fff" />
-            </TouchableOpacity>
-            <View style={styles.headerContent}>
-                <FontAwesome5 name="calendar-alt" size={24} color="#fff" />
-                <Text style={styles.headerTitle}>Schedule Pickup</Text>
+        <>
+            <StatusBar style='dark' />
+            <View style={{ paddingTop: top }}>
+                <View style={styles.container}>
+                    <TouchableOpacity style={styles.roundButton}
+                        onPress={onToggle}>
+                        <Entypo name="menu" size={26} color="black" />
+                        {/* <Text style={{ color: '#fff', fontWeight: '500', fontSize: 16 }}>JL</Text> */}
+                    </TouchableOpacity>
+                    <View style={styles.headerStyle}>
+                        {/* <FontAwesome5 name="truck" size={24} color="#000" /> */}
+                        <Text style={styles.headerText}>Schedule Your Pick Up</Text>
+                    </View>
+                    {/* <View style={styles.searchSection}>
+                        <Ionicons
+                            style={styles.searchIcon}
+                            name='search' size={20} color={Colors.dark} />
+                        <TextInput style={styles.input}
+                            placeholder='Search'
+                            placeholderTextColor={Colors.dark} />
+                    </View> */}
+                    <View>
+                        <TouchableOpacity onPress={onClosePress}>
+                            <FontAwesome name="close" size={30} color="black" />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* <View style={styles.circle}>
+                        <TouchableOpacity style={styles.roundButton}>
+                            <MaterialIcons name="my-location" size={20} color="black" />
+                        </TouchableOpacity>
+                    </View> */}
+                </View>
             </View>
-            <TouchableOpacity style={styles.locationButton} onPress={onLocationPress}>
-                <Ionicons name="location-outline" size={20} color="#fff" />
-            </TouchableOpacity>
-        </BlurView>
-    );
-};
+        </>
+    )
+}
+
+export default CalendarHeader;
 
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
-        height: 70,
-        backgroundColor: 'transparent',
+        height: 60,
+        backgroundColor: '#fff',
+        gap: 10,
         paddingHorizontal: 20,
-        justifyContent: 'space-between',
-        elevation: 5, // Shadow effect for Android
-        shadowColor: '#000', // Shadow for iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
     },
-    menuButton: {
+    roundButton: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#1e90ff', // Button color
+        backgroundColor: Colors.lightGray,
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 3, // Shadow effect
     },
-    headerContent: {
+    searchSection: {
+        flex: 1,
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
+        backgroundColor: Colors.lightGray,
+        borderRadius: 30,
+        alignItems: "center",
+        justifyContent: 'center',
+
     },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#fff',
+    input: {
+        flex: 1,
+        paddingTop: 10,
+        paddingRight: 10,
+        paddingBottom: 10,
+        paddingLeft: 0,
+        color: Colors.dark,
     },
-    locationButton: {
+    searchIcon: {
+        padding: 10
+    },
+    circle: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#ff6347', // Button color
+        backgroundColor: Colors.lightGray,
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 3, // Shadow effect
     },
-});
-
-export default CalendarsHeader;
+    headerStyle: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 6
+    },
+    headerText: {
+        fontWeight: 'bold',
+        fontSize: 20,
+        color: '#000'
+    }
+})
