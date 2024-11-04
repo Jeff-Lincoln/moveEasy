@@ -1,13 +1,13 @@
 export enum ModalType {
-    Login = 'login',
-    SignUp = 'signup',
+    Login = "login",
+    SignUp = "signup",
 }
 
 export enum AuthStrategy {
-    Google = 'oauth_google',
-    Microsoft = 'oauth_microsoft',
-    Slack = 'oauth_slack',
-    Apple = 'oauth_apple',
+    Google = "oauth_google",
+    Microsoft = "oauth_microsoft",
+    Slack = "oauth_slack",
+    Apple = "oauth_apple",
 }
 
 export interface Board {

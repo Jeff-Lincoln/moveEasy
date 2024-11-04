@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   headerText: {
-    fontSize: 45,
+    fontSize: 60,
     fontWeight: 'bold',
     color: 'orange',
     fontStyle: 'italic'

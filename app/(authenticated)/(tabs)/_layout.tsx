@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { AntDesign, Ionicons, Feather, FontAwesome6, FontAwesome5, Octicons, MaterialIcons, Entypo, FontAwesome } from '@expo/vector-icons';
@@ -13,13 +13,25 @@ import VehiclesCustomHeader from '@/components/VehiclesCustomHeader';
 import VehicleDetailCustomHeader from '@/components/VehicledetailCustomHeader';
 import CalendarHeader from '@/components/CalendarsHeader';
 import CheckListCustomHeader from '@/components/CheckListCustomHeader';
-import { useUser } from '@clerk/clerk-expo';
+import PaymentHeader from '@/components/PaymentHeader';
+import { useAuth, useUser } from '@clerk/clerk-expo';
+import Dialog from "react-native-dialog";
+import { Redirect, useRouter } from 'expo-router';
+
+
 
 // Custom Drawer Content Component
 const CustomDrawerContent = (props: any) => {
     const { navigation } = props;
     const { top, bottom } = useSafeAreaInsets();
     const { user } = useUser();
+    const router = useRouter();
+    const { signOut } = useAuth();
+    
+
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+
 
     return (
         <View style={styles.drawerContainer}>
@@ -37,25 +49,66 @@ const CustomDrawerContent = (props: any) => {
                     <DrawerItemList {...props} />
                 </View>
             </DrawerContentScrollView>
-            <TouchableOpacity style={styles.logoutContainer} onPress={() => navigation.navigate('index')}>
-                <AntDesign name="logout" size={24} color="#FFEA00" style={styles.logoutIcon} />
+            <TouchableOpacity style={styles.logoutContainer}
+                onPress={() => setDialogOpen(true)}
+            >
+                <AntDesign name="logout" size={24} color="#F39C12" style={styles.logoutIcon} />
                 <Text style={styles.logoutLabel}>Log Out</Text>
             </TouchableOpacity>
+
+            <Dialog.Container visible={dialogOpen}>
+                <Dialog.Title style={{
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    marginBottom: 10,
+                    marginLeft: 15,
+                    color: '#000',
+                }}>Sign Out</Dialog.Title>
+                <Dialog.Description
+                    style={{
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        marginBottom: 10,
+                        marginLeft: 15,
+                        color: '#000',
+                    }}>Are you sure you want to Sign out?</Dialog.Description>
+                <Dialog.Button label="Cancel" onPress={() => setDialogOpen(false)} />
+                
+                <Dialog.Button 
+  label="Sign Out" 
+  onPress={async () => { 
+    await signOut(); // Wait for sign-out to complete
+    setDialogOpen(false); 
+    router.replace("/"); // Try using push instead of replace 
+  }} 
+/>
+
+                {/* <Dialog.Button label="Sign Out" onPress={() => { signOut(); setDialogOpen(false); router.replace("/"); }} /> */}
+
+                {/* <Dialog.Button label="Delete" onPress={() => { deleteUser(); setDialogue(false); navigation.navigate('Welcome'); }} /> */}
+
+            </Dialog.Container>
         </View>
     );
 };
 
 // Main Layout Component
 const Layout = () => {
+    const { isSignedIn } = useAuth();
+
+    if (!isSignedIn) {
+        return <Redirect href="/" />;
+    }
+
     return (
         <Provider store={store}>
             <GestureHandlerRootView style={{ flex: 1 }}>
-                <StatusBar style="light" />
+                <StatusBar style="auto" />
                 <Drawer
                     drawerContent={CustomDrawerContent}
                     screenOptions={{
                         drawerHideStatusBarOnOpen: false,
-                        drawerActiveBackgroundColor: '#FFEA00',
+                        drawerActiveBackgroundColor: '#F39C12',
                         drawerActiveTintColor: "#000",
                         drawerInactiveTintColor: '#fff',
                         headerStyle: { backgroundColor: '#000' },
@@ -89,26 +142,30 @@ const Layout = () => {
                             drawerIcon: ({ size, color }) => (
                                 <Feather name="truck" size={size} color={color} />
                             ),
-                            header: () => <VehiclesCustomHeader />,
+                            // header: () => <VehiclesCustomHeader />,
+                            header: () => null,
+
                         }}
                     />
-                    <Drawer.Screen
+                    {/* <Drawer.Screen
                         name="vehicleDetail"
                         options={{
-                            drawerLabel: 'Vehicle Detail',
+                            drawerLabel: 'Vehicle Details',
                             headerTitle: "Vehicle Details",
+                            headerTransparent: true,
+                            headerShown: false,
                             headerShadowVisible: true,
                             headerStyle: {
-                                backgroundColor: '#334f', // Dark gray background
+                                // backgroundColor: '#334f', // Dark gray background
                             },
                             drawerIcon: ({ size, color }) => (
                                 <FontAwesome6 name="truck-front" size={size} color={color} />
                             ),
-                            header: () => <VehicleDetailCustomHeader />,
+                            // header: () => <VehicleDetailCustomHeader />,
                         }}
-                    />
+                    /> */}
                     <Drawer.Screen
-                        name="CheckList"
+                        name="Checklist/Checklist"
                         options={{
                             drawerLabel: 'CheckList',
                             headerTitle: "CheckList",
@@ -120,7 +177,7 @@ const Layout = () => {
                         }}
                     />
                     <Drawer.Screen
-                        name="CalendarScreen"
+                        name="CalendarScreen/index"
                         options={{
                             drawerLabel: 'Calendar',
                             headerTitle: "Schedule Your Pickup",
@@ -135,7 +192,7 @@ const Layout = () => {
                         }}
                     />
                     <Drawer.Screen
-                        name="myOrders"
+                        name="myOrders/myOrders"
                         options={{
                             drawerLabel: 'My Orders',
                             headerTitle: "My Orders",
@@ -145,27 +202,20 @@ const Layout = () => {
                         }}
                     />
                     <Drawer.Screen
-                        name="Payment"
+                        name="Payment/Payment"
                         options={{
+                            // headerTransparent: true,
                             drawerLabel: 'Payment',
                             headerTitle: "Payment",
                             drawerIcon: ({ size, color }) => (
                                 <MaterialIcons name="payments" size={size} color={color} />
                             ),
+                            header: () => <PaymentHeader />
+
                         }}
                     />
                     <Drawer.Screen
-                        name="Chats"
-                        options={{
-                            drawerLabel: 'Chats',
-                            headerTitle: "Chats",
-                            drawerIcon: ({ size, color }) => (
-                                <FontAwesome name="wechat" size={size} color={color} />
-                            ),
-                        }}
-                    />
-                    <Drawer.Screen
-                        name="FreeDrops"
+                        name="FreeDrops/FreeDrops"
                         options={{
                             drawerLabel: 'FreeDrops',
                             headerTitle: "FreeDrops",
@@ -175,7 +225,7 @@ const Layout = () => {
                         }}
                     />
                     <Drawer.Screen
-                        name="Profile"
+                        name="Profile/Profile"
                         options={{
                             drawerLabel: 'Profile',
                             headerTitle: "Profile",
@@ -212,7 +262,7 @@ const styles = StyleSheet.create({
         height: 100,
         borderRadius: 50,
         borderWidth: 2,
-        borderColor: '#FFEA00', // Yellow border for profile image
+        borderColor: '#460dcc', // Yellow border for profile image
         resizeMode: 'cover',
         marginBottom: 10,
     },
@@ -240,7 +290,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     logoutLabel: {
-        color: '#FFEA00', // Yellow color
+        color: '#F39C12',
         fontWeight: 'bold',
         fontSize: 16,
     },

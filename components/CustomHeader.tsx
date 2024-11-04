@@ -1,3 +1,5 @@
+
+
 import { Image, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { BlurView } from 'expo-blur'
@@ -19,7 +21,7 @@ const CustomHeader = () => {
     const { user } = useUser();
 
     const onPressProfile = () => {
-        router.push('Profile')
+        router.push('/(authenticated)/(tabs)/Profile')
     }
 
     const onToggle = () => {
@@ -28,7 +30,7 @@ const CustomHeader = () => {
 
     return (
         <>
-            <StatusBar style='light' />
+            <StatusBar style='auto' />
             <View style={{ paddingTop: top }}>
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.roundButton}
@@ -37,7 +39,7 @@ const CustomHeader = () => {
                         {/* <Text style={{ color: '#fff', fontWeight: '500', fontSize: 16 }}>JL</Text> */}
                     </TouchableOpacity>
                     <View style={styles.headerStyle}>
-                        <FontAwesome5 name="truck" size={24} color="#fff" />
+                        <FontAwesome5 name="truck" size={28} color="#000" />
                         <Text style={styles.headerText}>Move-Easy</Text>
                     </View>
                     {/* <View style={styles.searchSection}>
@@ -119,15 +121,16 @@ const styles = StyleSheet.create({
     },
     headerText: {
         fontWeight: '900',
-        fontSize: 20,
-        color: '#0ef00e'
+        fontSize: 28,
+        color: 'rgba(37, 35, 35, 0.712)',
+        fontStyle: 'normal'
     },
     profileButton: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        // backgroundColor: Colors.lightGray,
         justifyContent: 'center',
+        // backgroundColor: Colors.lightGray,
         alignItems: 'center',
         overflow: 'hidden',
         borderWidth: 1,
