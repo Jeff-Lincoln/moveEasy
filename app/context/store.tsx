@@ -2,11 +2,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import navReducer from './slices/navSlice';
 import vehicleReducer from './slices/vehicleSlice';
+import bookingReducer from './slices/bookingSlice';
 
 export const store = configureStore({
   reducer: {
     nav: navReducer,
     vehicle: vehicleReducer,
+    booking: bookingReducer, // Ensure 'booking' is included here
+
   },
 });
 

@@ -21,7 +21,7 @@ const CustomHeader = () => {
     const { user } = useUser();
 
     const onPressProfile = () => {
-        router.push('/(authenticated)/(tabs)/Profile')
+        router.push('/(authenticated)/(tabs)/Profile/Profile')
     }
 
     const onToggle = () => {
@@ -39,7 +39,7 @@ const CustomHeader = () => {
                         {/* <Text style={{ color: '#fff', fontWeight: '500', fontSize: 16 }}>JL</Text> */}
                     </TouchableOpacity>
                     <View style={styles.headerStyle}>
-                        <FontAwesome5 name="truck" size={28} color="#000" />
+                        <FontAwesome5 name="truck" size={26} color="#FF6D00" />
                         <Text style={styles.headerText}>Move-Easy</Text>
                     </View>
                     {/* <View style={styles.searchSection}>
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         fontWeight: '900',
-        fontSize: 28,
+        fontSize: 26,
         color: 'rgba(37, 35, 35, 0.712)',
         fontStyle: 'normal'
     },

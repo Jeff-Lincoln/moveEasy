@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import Colors from '@/constants/Colors';
+import { StyleSheet } from "react-native";
+import Colors from "@/constants/Colors";
 
 export const defaultStyles = StyleSheet.create({
   container: {
@@ -9,19 +9,19 @@ export const defaultStyles = StyleSheet.create({
   },
   header: {
     fontSize: 40,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   pillButton: {
     padding: 10,
     height: 60,
     borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   textLink: {
     color: Colors.primary,
     fontSize: 18,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   descriptionText: {
     fontSize: 18,
@@ -29,33 +29,39 @@ export const defaultStyles = StyleSheet.create({
     color: Colors.gray,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   pillButtonSmall: {
     paddingHorizontal: 20,
     height: 40,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonTextSmall: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   sectionHeader: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     margin: 20,
     marginBottom: 10,
   },
   block: {
     marginHorizontal: 20,
     padding: 14,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     gap: 20,
   },
 });
+
+export const colors = {
+  primary: "#d8632c",
+  background: "#fff",
+  // Add any other colors you need
+};

@@ -82,6 +82,7 @@ const AuthModal = ({ authType }: AuthModalProps) => {
 
                 if (createdSessionId) {
                     setActive!({ session: createdSessionId });
+                    router.replace('/(authenticated)/(tabs)/Home');
                     console.log('OAuth success standard');
                 }
             } catch (err) {
