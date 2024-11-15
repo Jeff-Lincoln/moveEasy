@@ -54,8 +54,8 @@ const vehicleDetails: Record<string, VehicleDetail> = {
     year: '2020',
     description: 'Perfect for small to medium moves and deliveries. A versatile and powerful truck suitable for heavy-duty tasks.',
     image: 'https://i.pinimg.com/originals/73/f9/c1/73f9c12c15aab4c743e16977d0b29ee2.jpg',
-    price: 'KES 14,240/hour',
-    laborPrice: 'KES 4,800/hour per worker',
+    price: 'KES 10,100',
+    laborPrice: 'KES 1000/hour per worker',
     rating: 4.5,
     capacity: '907 kg',
     availability: 'Available Now',
@@ -76,7 +76,7 @@ const vehicleDetails: Record<string, VehicleDetail> = {
     year: '2022',
     description: 'Ideal for moving apartments and small homes. Perfect balance of space and maneuverability.',
     image: 'https://i.pinimg.com/originals/ab/9f/1e/ab9f1e52c4ba623e90f37b144836d0e8.jpg',
-    price: 'KES 15,840/hour',
+    price: '12,100',
     laborPrice: 'KES 4,800/hour per worker',
     rating: 4.7,
     capacity: '1.36 tonnes',
@@ -98,7 +98,7 @@ const vehicleDetails: Record<string, VehicleDetail> = {
     year: '2021',
     description: 'Great for moving homes and large items. Ideal for full home moves and commercial transportation needs.',
     image: 'https://i.pinimg.com/originals/17/60/8a/17608a50e87b85a23a6ff5833156c82a.jpg',
-    price: 'KES 20,640/hour',
+    price: 'KES 14,100',
     laborPrice: 'KES 4,800/hour per worker',
     rating: 4.6,
     capacity: '2.27 tonnes',
@@ -120,7 +120,7 @@ const vehicleDetails: Record<string, VehicleDetail> = {
     year: '2021',
     description: 'Largest option for big moves and commercial use. Perfect for full home and office relocations.',
     image: 'https://i.pinimg.com/originals/a3/80/ef/a380ef275d361df294d417ad4331cb8c.jpg',
-    price: 'KES 25,440/hour',
+    price: 'KES 16,000',
     laborPrice: 'KES 4,800/hour per worker',
     rating: 4.8,
     capacity: '3.63 tonnes',
@@ -310,14 +310,14 @@ const VehicleDetail = () => {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Pricing</Text>
             <View style={styles.priceRow}>
-              <View>
+              <View style={{}}>
                 <Text style={styles.priceLabel}>Vehicle Rate</Text>
                 <Text style={styles.priceValue}>{vehicle.price}</Text>
               </View>
-              <View style={styles.laborPriceContainer}>
+              {/* <View style={styles.laborPriceContainer}>
                 <Text style={styles.priceLabel}>Labor Rate</Text>
                 <Text style={styles.laborPriceValue}>{vehicle.laborPrice}</Text>
-              </View>
+              </View> */}
             </View>
           </View>
 
@@ -589,6 +589,19 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  backButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
   },
 });
 

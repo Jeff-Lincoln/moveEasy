@@ -431,14 +431,14 @@ const styles = StyleSheet.create({
     height: 200,
   },
   loaderText: {
-    color: '#FFF',
+    color: '#0ffc6a',
     fontSize: 18,
     fontWeight: '600',
     marginTop: 20,
     textAlign: 'center',
   },
   loaderSubText: {
-    color: '#CCC',
+    color: '#0ffc6a',
     fontSize: 14,
     marginTop: 8,
     textAlign: 'center',

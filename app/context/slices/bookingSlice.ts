@@ -7,7 +7,7 @@ interface Vehicle {
     image: string;
     description: string;
     capacity: string;
-    price: string;
+    price: any;
 }
 
 interface BookingState {

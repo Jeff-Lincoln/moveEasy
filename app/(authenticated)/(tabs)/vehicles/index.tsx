@@ -77,7 +77,7 @@ const VehiclesScreen = () => {
       image: 'https://i.pinimg.com/originals/73/f9/c1/73f9c12c15aab4c743e16977d0b29ee2.jpg',
       description: 'Perfect for small to medium moves and deliveries',
       capacity: '2000 lbs',
-      price: '$89/hour'
+      price: '10,100'
     },
     {
       id: 'van',
@@ -86,7 +86,7 @@ const VehiclesScreen = () => {
       image: 'https://i.pinimg.com/originals/ab/9f/1e/ab9f1e52c4ba623e90f37b144836d0e8.jpg',
       description: 'Ideal for moving apartments and small homes',
       capacity: '3000 lbs',
-      price: '$99/hour'
+      price: '12,100'
     },
     {
       id: 'truck',
@@ -95,7 +95,7 @@ const VehiclesScreen = () => {
       image: 'https://i.pinimg.com/originals/17/60/8a/17608a50e87b85a23a6ff5833156c82a.jpg',
       description: 'Great for moving homes and large items',
       capacity: '5000 lbs',
-      price: '$129/hour'
+      price: '14,100'
     },
     {
       id: 'truck-xl',
@@ -104,7 +104,7 @@ const VehiclesScreen = () => {
       image: 'https://i.pinimg.com/originals/a3/80/ef/a380ef275d361df294d417ad4331cb8c.jpg',
       description: 'Largest option for big moves and commercial use',
       capacity: '8000 lbs',
-      price: '$159/hour'
+      price: '16,000'
     }
   ];
 

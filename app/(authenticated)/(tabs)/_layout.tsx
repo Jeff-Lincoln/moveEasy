@@ -16,6 +16,8 @@ import PaymentHeader from '@/components/PaymentHeader';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import Dialog from 'react-native-dialog';
 import { Redirect, useRouter } from 'expo-router';
+import ProfileCustomHeader from '@/components/ProfileCustomHeader';
+import OrdersCustomHeader from '@/components/OrdersCustomHeader';
 
 const CustomDrawerContent = (props: any) => {
     const { navigation } = props;
@@ -153,6 +155,7 @@ const Layout = () => {
                             drawerIcon: ({ size, color }) => (
                                 <MaterialIcons name="bookmark-border" size={size} color={color} />
                             ),
+                            header: () => <OrdersCustomHeader />,
                         }}
                     />
                     <Drawer.Screen
@@ -184,6 +187,7 @@ const Layout = () => {
                             drawerIcon: ({ size, color }) => (
                                 <Ionicons name="person-outline" size={size} color={color} />
                             ),
+                            header: () => <ProfileCustomHeader />,
                         }}
                     />
                 </Drawer>

@@ -122,8 +122,9 @@ const styles = StyleSheet.create({
     headerText: {
         fontWeight: '900',
         fontSize: 26,
-        color: 'rgba(37, 35, 35, 0.712)',
-        fontStyle: 'normal'
+        // color: 'rgba(37, 35, 35, 0.712)',
+        color: "#FF6D00",
+        fontStyle: 'italic'
     },
     profileButton: {
         width: 40,

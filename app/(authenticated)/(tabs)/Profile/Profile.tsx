@@ -1,48 +1,104 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Linking } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Linking, ActivityIndicator } from 'react-native';
 import { useUser } from '@clerk/clerk-expo';
 import { MaterialCommunityIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { supabase } from '@/supabase/supabase'; // Ensure this path matches your setup
+
+interface PaymentData {
+  id: string;
+  user_id: string;
+  user_name: string;
+  origin: string;
+  destination: string;
+  distance: string;
+  distance_price: number;
+  duration: string;
+  vehicle: string;
+  date_time: string;
+  total_price: string;
+  created_at: string;
+}
+
+interface UserStats {
+  totalMoves: number;
+  averageRating: number;
+  memberSince: string;
+  totalSpent: number;
+}
 
 const ProfilePage = () => {
   const { user } = useUser();
-  const [showFullBio, setShowFullBio] = useState(false);
+  const [paymentHistory, setPaymentHistory] = useState<PaymentData[]>([]);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [nextMove, setNextMove] = useState<PaymentData | null>(null);
 
-  const userStats = [
-    { 
-      icon: 'truck-fast',
-      label: 'Moves Completed',
-      value: '3',
-      iconLibrary: FontAwesome5
-    },
-    {
-      icon: 'star',
-      label: 'Rating',
-      value: '4.8',
-      iconLibrary: FontAwesome5
-    },
-    {
-      icon: 'calendar-check',
-      label: 'Member Since',
-      value: '2023',
-      iconLibrary: FontAwesome5
-    },
-  ];
+  useEffect(() => {
+    fetchUserData();
+  }, [user?.id]);
 
-  const handleEditProfile = () => {
-    // Handle edit profile action
+  const fetchUserData = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Fetch payment history
+      const { data: payments, error } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setPaymentHistory(payments);
+
+      // Calculate user stats
+      const stats: UserStats = {
+        totalMoves: payments.length,
+        averageRating: 4.8, // You might want to fetch this from a separate ratings table
+        memberSince: new Date(user.createdAt).getFullYear().toString(),
+        totalSpent: payments.reduce((sum, payment) => sum + parseFloat(payment.total_price), 0)
+      };
+
+      setUserStats(stats);
+
+      // Set next upcoming move
+      const upcomingMoves = payments.filter(
+        payment => new Date(payment.date_time) > new Date()
+      );
+      if (upcomingMoves.length > 0) {
+        setNextMove(upcomingMoves[0]);
+      }
+
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleLocationPress = () => {
-    Linking.openURL('https://maps.google.com/?q=Nairobi,Kenya');
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES'
+    }).format(amount);
   };
 
-  const handlePhonePress = () => {
-    Linking.openURL('tel:+25474197359');
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
-  const handleEmailPress = () => {
-    Linking.openURL(`mailto:${user?.primaryEmailAddress?.emailAddress}`);
-  };
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -50,7 +106,7 @@ const ProfilePage = () => {
       <View style={styles.header}>
         <View style={styles.profileImageContainer}>
           <Image
-            source={{ uri: user?.imageUrl || 'https://example.com/default-avatar.png' }}
+            source={{ uri: user?.imageUrl }}
             style={styles.profileImage}
           />
           <TouchableOpacity style={styles.editImageButton}>
@@ -59,100 +115,88 @@ const ProfilePage = () => {
         </View>
         
         <View style={styles.userInfo}>
-          <Text style={styles.userName}>{user?.fullName || 'User Name'}</Text>
+          <Text style={styles.userName}>{user?.fullName}</Text>
           <View style={styles.verifiedBadge}>
             <Text style={styles.verifiedText}>Verified User</Text>
             <MaterialCommunityIcons name="check-decagram" size={16} color="#4CAF50" />
           </View>
         </View>
-
-        <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
       </View>
 
       {/* User Stats */}
       <View style={styles.statsContainer}>
-        {userStats.map((stat, index) => (
-          <View key={index} style={styles.statItem}>
-            <stat.iconLibrary name={stat.icon} size={24} color="#007AFF" />
-            <Text style={styles.statValue}>{stat.value}</Text>
-            <Text style={styles.statLabel}>{stat.label}</Text>
-          </View>
-        ))}
+        <View style={styles.statItem}>
+          <FontAwesome5 name="truck" size={24} color="#007AFF" />
+          <Text style={styles.statValue}>{userStats?.totalMoves || 0}</Text>
+          <Text style={styles.statLabel}>Moves</Text>
+        </View>
+        <View style={styles.statItem}>
+          <FontAwesome5 name="star" size={24} color="#007AFF" />
+          <Text style={styles.statValue}>{userStats?.averageRating}</Text>
+          <Text style={styles.statLabel}>Rating</Text>
+        </View>
+        <View style={styles.statItem}>
+          <MaterialCommunityIcons name="wallet" size={24} color="#007AFF" />
+          <Text style={styles.statValue}>{formatCurrency(userStats?.totalSpent || 0)}</Text>
+          <Text style={styles.statLabel}>Total Spent</Text>
+        </View>
       </View>
 
       {/* Next Move Card */}
-      <View style={styles.moveCard}>
-        <Text style={styles.cardTitle}>Upcoming Move</Text>
-        <View style={styles.moveDetails}>
-          <View style={styles.moveLocation}>
-            <Ionicons name="location" size={24} color="#007AFF" />
-            <View style={styles.locationText}>
-              <Text style={styles.fromTo}>From: Nairobi CBD</Text>
-              <Text style={styles.fromTo}>To: Westlands</Text>
+      {nextMove && (
+        <View style={styles.moveCard}>
+          <Text style={styles.cardTitle}>Upcoming Move</Text>
+          <View style={styles.moveDetails}>
+            <View style={styles.moveLocation}>
+              <Ionicons name="location" size={24} color="#007AFF" />
+              <View style={styles.locationText}>
+                <Text style={styles.fromTo}>From: {nextMove.origin}</Text>
+                <Text style={styles.fromTo}>To: {nextMove.destination}</Text>
+              </View>
+            </View>
+            <View style={styles.moveInfo}>
+              <Text style={styles.moveInfoText}>
+                <MaterialCommunityIcons name="truck-outline" size={16} color="#666" /> {nextMove.vehicle}
+              </Text>
+              <Text style={styles.moveInfoText}>
+                <MaterialCommunityIcons name="map-marker-distance" size={16} color="#666" /> {nextMove.distance} km
+              </Text>
+              <Text style={styles.movePrice}>{formatCurrency(parseFloat(nextMove.total_price))}</Text>
+            </View>
+            <Text style={styles.moveDate}>Scheduled: {formatDate(nextMove.date_time)}</Text>
+          </View>
+        </View>
+      )}
+
+      {/* Move History */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Move History</Text>
+        {paymentHistory.map((payment, index) => (
+          <View key={payment.id} style={styles.historyCard}>
+            <View style={styles.historyHeader}>
+              <Text style={styles.historyDate}>{formatDate(payment.created_at)}</Text>
+              <Text style={styles.historyPrice}>{formatCurrency(parseFloat(payment.total_price))}</Text>
+            </View>
+            <View style={styles.historyDetails}>
+              <View style={styles.historyLocation}>
+                <Ionicons name="location-outline" size={20} color="#666" />
+                <View style={styles.locationText}>
+                  <Text style={styles.historyText}>{payment.origin}</Text>
+                  <MaterialCommunityIcons name="arrow-down" size={16} color="#666" />
+                  <Text style={styles.historyText}>{payment.destination}</Text>
+                </View>
+              </View>
+              <View style={styles.historyStats}>
+                <Text style={styles.historyStatItem}>
+                  <MaterialCommunityIcons name="truck-outline" size={16} color="#666" /> {payment.vehicle}
+                </Text>
+                <Text style={styles.historyStatItem}>
+                  <MaterialCommunityIcons name="map-marker-distance" size={16} color="#666" /> {payment.distance} km
+                </Text>
+              </View>
             </View>
           </View>
-          <Text style={styles.moveDate}>Scheduled: Oct 15, 2024</Text>
-        </View>
-      </View>
-
-      {/* Contact Information */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Contact Information</Text>
-        <TouchableOpacity style={styles.infoRow} onPress={handlePhonePress}>
-          <Ionicons name="call-outline" size={24} color="#666" />
-          <Text style={styles.infoText}>+254 74197359</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.infoRow} onPress={handleLocationPress}>
-          <Ionicons name="location-outline" size={24} color="#666" />
-          <Text style={styles.infoText}>Nairobi, Kenya</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.infoRow} onPress={handleEmailPress}>
-          <MaterialCommunityIcons name="email-outline" size={24} color="#666" />
-          <Text style={styles.infoText}>{user?.primaryEmailAddress?.emailAddress || 'email@example.com'}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Preferences Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Moving Preferences</Text>
-        <View style={styles.preferencesContainer}>
-          <View style={styles.preferenceItem}>
-            <MaterialCommunityIcons name="box" size={24} color="#007AFF" />
-            <Text style={styles.preferenceText}>Professional Packing</Text>
-          </View>
-          <View style={styles.preferenceItem}>
-            <MaterialCommunityIcons name="shield-check" size={24} color="#007AFF" />
-            <Text style={styles.preferenceText}>Insurance Required</Text>
-          </View>
-          <View style={styles.preferenceItem}>
-            <MaterialCommunityIcons name="clock-outline" size={24} color="#007AFF" />
-            <Text style={styles.preferenceText}>Weekend Moves Only</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Additional Info */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Additional Information</Text>
-        <Text style={styles.aboutText}>
-          This information helps our movers provide better service. Please keep it updated.
-        </Text>
-        <View style={styles.additionalInfoContainer}>
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>House Type</Text>
-            <Text style={styles.infoValue}>2 Bedroom Apartment</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Preferred Time</Text>
-            <Text style={styles.infoValue}>Morning (8 AM - 12 PM)</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Special Notes</Text>
-            <Text style={styles.infoValue}>Have fragile items, need extra care</Text>
-          </View>
-        </View>
+        ))}
       </View>
     </ScrollView>
   );
@@ -161,6 +205,12 @@ const ProfilePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#f8f9fa',
   },
   header: {
@@ -195,7 +245,6 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     alignItems: 'center',
-    marginBottom: 15,
   },
   userName: {
     fontSize: 24,
@@ -217,17 +266,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  editButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#007AFF',
-  },
-  editButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -237,9 +275,10 @@ const styles = StyleSheet.create({
   },
   statItem: {
     alignItems: 'center',
+    flex: 1,
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
     marginTop: 8,
@@ -248,7 +287,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 4,
-    textAlign: 'center',
   },
   moveCard: {
     backgroundColor: '#fff',
@@ -256,10 +294,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 15,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
@@ -282,17 +317,35 @@ const styles = StyleSheet.create({
   },
   locationText: {
     marginLeft: 10,
+    flex: 1,
   },
   fromTo: {
     fontSize: 16,
     color: '#333',
     marginBottom: 5,
   },
+  moveInfo: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  moveInfoText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
+  },
+  movePrice: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginTop: 5,
+  },
   moveDate: {
     fontSize: 15,
     color: '#007AFF',
     fontWeight: '600',
-    marginTop: 5,
+    marginTop: 10,
   },
   section: {
     backgroundColor: '#fff',
@@ -305,56 +358,49 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 15,
   },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 10,
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 15,
-  },
-  preferencesContainer: {
+  historyCard: {
     backgroundColor: '#F8F9FA',
     borderRadius: 10,
     padding: 15,
+    marginBottom: 15,
   },
-  preferenceItem: {
+  historyHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 10,
   },
-  preferenceText: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 15,
-  },
-  additionalInfoContainer: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 10,
-    padding: 15,
-  },
-  infoItem: {
-    marginBottom: 15,
-  },
-  infoLabel: {
+  historyDate: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 5,
   },
-  infoValue: {
+  historyPrice: {
     fontSize: 16,
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  historyDetails: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 10,
+  },
+  historyLocation: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  historyText: {
+    fontSize: 14,
     color: '#333',
+    marginVertical: 2,
   },
-  aboutText: {
-    fontSize: 16,
+  historyStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
+  },
+  historyStatItem: {
+    fontSize: 14,
     color: '#666',
-    lineHeight: 24,
-    marginBottom: 15,
   },
 });
 
