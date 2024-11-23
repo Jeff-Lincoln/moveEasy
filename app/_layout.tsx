@@ -144,17 +144,19 @@ function AppNavigator() {
             name="screens/signUp"
             options={{
               headerShown: true,
+              headerTitle: "Sign Up",
             }}
           />
           <Stack.Screen
             name="screens/login"
             options={{
               headerShown: true,
+              headerTitle: "Login",
               headerRight: () => (
                 <Link href={'/screens/help'} asChild>
                   <TouchableOpacity style={styles.helpButton}>
                     <Ionicons 
-                      name="help-circle-outline" 
+                      name="help-circle-outline"
                       size={34} 
                       color={colorScheme === 'dark' ? Colors.white : Colors.black} 
                     />

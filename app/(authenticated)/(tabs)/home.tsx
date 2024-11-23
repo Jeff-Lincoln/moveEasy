@@ -11,6 +11,7 @@ import {
   Keyboard,
   Animated,
   Platform,
+  Linking,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import Mapbox, { Camera, LineLayer, LocationPuck, MapView, ShapeSource, SymbolLayer } from '@rnmapbox/maps';
@@ -24,6 +25,10 @@ import { setOrigin, setDestination, setDistance, setDuration } from '@/app/conte
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import LottieView from 'lottie-react-native';
+import * as Location from 'expo-location';
+// import Geolocation from 'react-native-geolocation-service';
+
+
 
 const { width, height } = Dimensions.get('window');
 const MAP_STYLE = 'mapbox://styles/mapbox/dark-v10';
@@ -51,6 +56,11 @@ const MapScreen = () => {
   const [infoBoxVisible] = useState(new Animated.Value(0));
   const [mapReady, setMapReady] = useState(false);
 
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+
+
   const router = useRouter();
   const dispatch = useDispatch();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -59,6 +69,57 @@ const MapScreen = () => {
   const lottieRef = useRef<LottieView>(null);
   
   const snapPoints = ['25%', '50%', '80%'];
+
+
+  const requestLocationPermission = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const userLocation = await Location.getCurrentPositionAsync({});
+        setLocation(userLocation);
+      } else if (status === 'denied') {
+        Alert.alert(
+          'Permission Denied',
+          'Location access is required to use this feature. Please allow location access.',
+          [
+            { text: 'OK' },
+          ]
+        );
+      } else if (status === 'blocked') {
+        Alert.alert(
+          'Permission Blocked',
+          'Location access is blocked. Please go to your device settings and allow location access for this app.',
+          [
+            { text: 'Open Settings', onPress: () => Linking.openSettings() },
+            { text: 'Cancel', style: 'cancel' }
+          ]
+        );
+      }
+    } catch (error) {
+      setErrorMsg('Error requesting location permissions');
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    requestLocationPermission();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Denied',
+          'Location access is needed for this feature to work properly.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        // Location permission granted, proceed with location-based logic if needed
+      }
+    })();
+  }, []);
+
 
   useEffect(() => {
     if (distance) {
@@ -350,7 +411,7 @@ const MapScreen = () => {
         <View style={styles.sheetHeader}>
           <Text style={styles.sheetTitle}>Enter Route Details</Text>
           <TouchableOpacity onPress={handleSheetClose} style={styles.closeButton}>
-            <MaterialIcons name="close" size={24} color="#666" />
+            <MaterialIcons name="close" size={24} color="#f10909" />
           </TouchableOpacity>
         </View>
 
@@ -383,7 +444,7 @@ const MapScreen = () => {
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="#fd1010" />
             ) : (
               <>
                 <Text style={styles.directionButtonText}>Get Directions</Text>
@@ -533,7 +594,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#333',
   },
   sheetTitle: {
-    color: '#FFF',
+    color: 'transparent',
     fontSize: 18,
     fontWeight: '600',
   },
@@ -546,23 +607,24 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2C2C2E',
+    backgroundColor: 'grey',
     borderRadius: 12,
     marginBottom: 15,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#3C3C3E',
+    borderColor: '#01020f',
   },
   input: {
     flex: 1,
-    color: '#FFF',
+    color: '#12f712',
     fontSize: 16,
     marginLeft: 10,
     paddingVertical: 8,
   },
   directionButton: {
     flexDirection: 'row',
-    backgroundColor: '#FF9800',
+    // backgroundColor: '#FF9800',
+    backgroundColor: '#2196F3',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

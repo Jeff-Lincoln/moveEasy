@@ -53,7 +53,7 @@ const vehicleDetails: Record<string, VehicleDetail> = {
     type: 'Full Size Truck',
     year: '2020',
     description: 'Perfect for small to medium moves and deliveries. A versatile and powerful truck suitable for heavy-duty tasks.',
-    image: 'https://i.pinimg.com/originals/73/f9/c1/73f9c12c15aab4c743e16977d0b29ee2.jpg',
+    image: 'https://i.pinimg.com/736x/ce/fb/1d/cefb1df7e07cc22336d0a7c54ddbc1ad.jpg',
     price: 'KES 10,100',
     laborPrice: 'KES 1000/hour per worker',
     rating: 4.5,

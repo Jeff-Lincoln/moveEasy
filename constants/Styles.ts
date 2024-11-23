@@ -8,7 +8,7 @@ export const defaultStyles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    fontSize: 40,
+    fontSize: 35,
     fontWeight: "700",
   },
   pillButton: {

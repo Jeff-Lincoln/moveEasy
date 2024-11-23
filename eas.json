@@ -43,7 +43,7 @@
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease"
       },
-      "resourceClass": "large",
+      "resourceClass": "medium",
       "env": {
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_ZGVsaWNhdGUta2l0ZS00LmNsZXJrLmFjY291bnRzLmRldiQ",
         "EXPO_PUBLIC_MAPBOX_KEY": "pk.eyJ1IjoiamVmZmxpbmNvbG4iLCJhIjoiY2x5OTVoaXh1MG05MTJzc2F5cWMzeXB3YSJ9.hlvBfPhtmDYpMtWZnfiTSQ",

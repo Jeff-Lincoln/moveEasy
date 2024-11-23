@@ -16,7 +16,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
-import backgroundImage from '@/assets/images/bgImg.jpeg';
+import backgroundImage from '@/assets/images/bg_IMG_1.jpeg';
 import { useDispatch } from 'react-redux';
 import { setDateTime } from '@/app/context/slices/navSlice';
 
@@ -98,7 +98,7 @@ const MyCalendar: React.FC = () => {
     if (isLoading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#1fd655" />
+                <ActivityIndicator size="large" color="#00cc6a" />
             </View>
         );
     }
@@ -142,7 +142,7 @@ const MyCalendar: React.FC = () => {
                                                     ? {
                                                           [selectedDate.dateString]: {
                                                               selected: true,
-                                                              selectedColor: '#1fd655',
+                                                              selectedColor: '#00cc6a',
                                                           },
                                                       }
                                                     : {}
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     timeSlotSelected: {
-        borderColor: '#1fd655',
+        borderColor: '#00cc6a',
         backgroundColor: 'rgba(31, 214, 85, 0.15)',
     },
     timeSlotText: {
@@ -259,17 +259,17 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     timeSlotTextSelected: {
-        color: '#1fd655',
+        color: '#00cc6a',
         fontWeight: '600',
     },
     continueButton: {
-        backgroundColor: '#1fd655',
+        backgroundColor: '#00cc6a',
         padding: 18,
         borderRadius: 16,
         alignItems: 'center',
         marginTop: 24,
         marginBottom: 20,
-        shadowColor: '#1fd655',
+        shadowColor: '#00cc6a',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

@@ -69,44 +69,147 @@ const VehiclesScreen = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
+
   const vehicles: Vehicle[] = [
     {
-      id: 'pickup-truck',
-      name: 'Pick up Truck',
-      type: 'Year: 2020',
-      image: 'https://i.pinimg.com/originals/73/f9/c1/73f9c12c15aab4c743e16977d0b29ee2.jpg',
-      description: 'Perfect for small to medium moves and deliveries',
-      capacity: '2000 lbs',
-      price: '10,100'
+        id: 'pickup-truck',
+        name: 'Pick Up Truck',
+        type: 'Year: 2020',
+        // image: 'https://i.pinimg.com/originals/73/f9/c1/73f9c12c15aab4c743e16977d0b29ee2.jpg',
+        image: 'https://i.pinimg.com/736x/ce/fb/1d/cefb1df7e07cc22336d0a7c54ddbc1ad.jpg',
+        description: 'Perfect for small to medium moves and deliveries',
+        capacity: '2000 lbs',
+        price: '10,100'
     },
     {
-      id: 'van',
-      name: 'Van',
-      type: 'Type: Standard',
-      image: 'https://i.pinimg.com/originals/ab/9f/1e/ab9f1e52c4ba623e90f37b144836d0e8.jpg',
-      description: 'Ideal for moving apartments and small homes',
-      capacity: '3000 lbs',
-      price: '12,100'
+        id: 'van',
+        name: 'Van',
+        type: 'Type: Standard',
+        image: 'https://i.pinimg.com/originals/ab/9f/1e/ab9f1e52c4ba623e90f37b144836d0e8.jpg',
+        description: 'Ideal for moving apartments and small homes',
+        capacity: '3000 lbs',
+        price: '12,100'
     },
     {
-      id: 'truck',
-      name: 'Truck',
-      type: 'Type: Standard',
-      image: 'https://i.pinimg.com/originals/17/60/8a/17608a50e87b85a23a6ff5833156c82a.jpg',
-      description: 'Great for moving homes and large items',
-      capacity: '5000 lbs',
-      price: '14,100'
+        id: 'truck',
+        name: 'Truck',
+        type: 'Type: Standard',
+        image: 'https://i.pinimg.com/originals/17/60/8a/17608a50e87b85a23a6ff5833156c82a.jpg',
+        description: 'Great for moving homes and large items',
+        capacity: '5000 lbs',
+        price: '14,100'
     },
     {
-      id: 'truck-xl',
-      name: 'Truck XL',
-      type: 'Type: Extra Large',
-      image: 'https://i.pinimg.com/originals/a3/80/ef/a380ef275d361df294d417ad4331cb8c.jpg',
-      description: 'Largest option for big moves and commercial use',
-      capacity: '8000 lbs',
-      price: '16,000'
+        id: 'truck-xl',
+        name: 'Truck XL',
+        type: 'Type: Extra Large',
+        image: 'https://i.pinimg.com/originals/a3/80/ef/a380ef275d361df294d417ad4331cb8c.jpg',
+        description: 'Largest option for big moves and commercial use',
+        capacity: '8000 lbs',
+        price: '16,000'
+    },
+    {
+      id: 'cargo-truck',
+      name: 'Cargo Truck',
+      type: 'Type: Heavy Duty',
+      image: 'https://i.pinimg.com/736x/a6/48/61/a648610fde55f219a6ea80afeb1ba5be.jpg',
+      description: 'Designed for larger relocations with high-capacity cargo space.',
+      capacity: '10,000 lbs',
+      price: '18,000',
+      features: ['High-capacity space', 'Reinforced flooring', 'Secure tie-down points'],
+      recommendedFor: ['Warehouse moves', 'Heavy appliances', 'Long-distance relocations'],
+      rentalDuration: ['Daily', 'Weekly']
+  },
+    {
+        id: 'box-truck',
+        name: 'Box Truck',
+        type: 'Type: Medium',
+        image: 'https://i.pinimg.com/736x/e1/59/d8/e159d8af126ce9a62e6feb892ded3215.jpg',
+        description: 'Ideal for larger moves, this truck features a fully enclosed cargo area for added protection of your belongings.',
+        capacity: '6000 lbs',
+        price: '15,000',
+        features: ['Enclosed cargo space', 'Roll-up door', 'Easy access for loading and unloading'],
+        recommendedFor: ['3-4 bedroom homes', 'Office relocations', 'Large appliances and furniture'],
+        rentalDuration: ['Daily', 'Weekly']
+    },
+    {
+        id: 'flatbed-truck',
+        name: 'Flatbed Truck',
+        type: 'Type: Specialty',
+        image: 'https://i.pinimg.com/736x/29/8a/87/298a8772e6ea06d77195acf06359bdd3.jpg',
+        description: 'Perfect for transporting oversized items or equipment. The open design allows for easy loading of large or heavy items.',
+        capacity: '7000 lbs',
+        price: '14,500',
+        features: ['Open bed for oversized loads', 'Heavy-duty straps included', 'Low loading height'],
+        recommendedFor: ['Construction materials', 'Heavy machinery', 'Large furniture'],
+        rentalDuration: ['Daily', 'Weekly']
+    },
+    {
+        id: 'mini-truck',
+        name: 'Mini Truck',
+        type: 'Type: Compact',
+        image: 'https://i.pinimg.com/736x/3a/25/f9/3a25f961e463c22a6716e79f86838656.jpg',
+        description: 'Great for small moves or quick deliveries within the city.',
+        capacity: '1500 lbs',
+        price: '8,000',
+        features: ['Compact size for city navigation', 'Fuel-efficient', 'Quick loading and unloading'],
+        recommendedFor: ['Studio apartments', 'Small deliveries', 'Furniture pickup'],
+        rentalDuration: ['Hourly', 'Daily']
+    },
+    {
+        id: 'refrigerated-truck',
+        name: 'Refrigerated Truck',
+        type: 'Type: Temperature-Controlled',
+        image: 'https://i.pinimg.com/736x/7d/a5/19/7da519b564c567ff3ebf259659c6a6e6.jpg',
+        description: 'Best for transporting perishable items and temperature-sensitive goods.',
+        capacity: '4000 lbs',
+        price: '20,000',
+        features: ['Temperature control', 'Insulated cargo area', 'Easy loading'],
+        recommendedFor: ['Food transport', 'Medical supplies', 'Perishable goods'],
+        rentalDuration: ['Daily', 'Weekly']
     }
-  ];
+];
+
+
+
+  // const vehicles: Vehicle[] = [
+  //   {
+  //     id: 'pickup-truck',
+  //     name: 'Pick up Truck',
+  //     type: 'Year: 2020',
+  //     image: 'https://i.pinimg.com/originals/73/f9/c1/73f9c12c15aab4c743e16977d0b29ee2.jpg',
+  //     description: 'Perfect for small to medium moves and deliveries',
+  //     capacity: '2000 lbs',
+  //     price: '10,100'
+  //   },
+  //   {
+  //     id: 'van',
+  //     name: 'Van',
+  //     type: 'Type: Standard',
+  //     image: 'https://i.pinimg.com/originals/ab/9f/1e/ab9f1e52c4ba623e90f37b144836d0e8.jpg',
+  //     description: 'Ideal for moving apartments and small homes',
+  //     capacity: '3000 lbs',
+  //     price: '12,100'
+  //   },
+  //   {
+  //     id: 'truck',
+  //     name: 'Truck',
+  //     type: 'Type: Standard',
+  //     image: 'https://i.pinimg.com/originals/17/60/8a/17608a50e87b85a23a6ff5833156c82a.jpg',
+  //     description: 'Great for moving homes and large items',
+  //     capacity: '5000 lbs',
+  //     price: '14,100'
+  //   },
+  //   {
+  //     id: 'truck-xl',
+  //     name: 'Truck XL',
+  //     type: 'Type: Extra Large',
+  //     image: 'https://i.pinimg.com/originals/a3/80/ef/a380ef275d361df294d417ad4331cb8c.jpg',
+  //     description: 'Largest option for big moves and commercial use',
+  //     capacity: '8000 lbs',
+  //     price: '16,000'
+  //   }
+  // ];
 
   const navigateToDetail = (vehicle: Vehicle) => {
     // Dispatch the selected vehicle to the Redux store
